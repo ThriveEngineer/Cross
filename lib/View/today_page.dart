@@ -1,4 +1,6 @@
 import 'package:cross/Controller/dates.dart';
+import 'package:cross/Controller/todo_list.dart';
+import 'package:cross/widgets/todo_tile.dart';
 import 'package:flutter/material.dart';
 
 class TodayPage extends StatefulWidget {
@@ -56,6 +58,7 @@ class _TodayPageState extends State<TodayPage> {
           ),
 
           // Tasks (content of the page)
+          if (toDoList.isEmpty)
           Expanded(
             child: Center(
               child: Column(
@@ -88,6 +91,10 @@ class _TodayPageState extends State<TodayPage> {
                 ],
               ),
             ),
+          )
+          else
+          Expanded(
+            child: TodoList(),
           ),
         ],
       );

@@ -1,5 +1,5 @@
-import 'package:cross/pages/today_page.dart';
-import 'package:cross/theme.dart';
+import 'package:cross/Controller/theme.dart';
+import 'package:cross/widgets/bottomnavigationbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TodayPage(),
+      home: BottomnavigationbarWidget(),
       theme: lightTheme,
     );
   }

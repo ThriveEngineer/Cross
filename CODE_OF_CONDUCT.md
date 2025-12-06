@@ -91,4 +91,4 @@ For questions about this Code of Conduct or its application, please contact the 
 
 ---
 
-*Last updated: [DATE]*
+*Last updated: 06.12.2025*

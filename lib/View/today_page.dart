@@ -58,43 +58,52 @@ class _TodayPageState extends State<TodayPage> {
           ),
 
           // Tasks (content of the page)
-          if (toDoList.isEmpty)
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Relax, you don't have anything left",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    "todo.",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+          ValueListenableBuilder<List<List<dynamic>>>(
+            valueListenable: toDoList,
+            builder: (context, list, _) {
+              if (list.isEmpty) {
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Relax, you don't have anything left",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          "todo.",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
 
-                  TextButton(
-                    onPressed: () {}, 
-                    style: TextButton.styleFrom(
-                      backgroundColor: ColorScheme.of(context).primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            backgroundColor: ColorScheme.of(context).primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text("Create new task",),
+                        ),
+                      ],
                     ),
-                    child: Text("Create new task",),
-                    ),
-                ],
-              ),
-            ),
-          )
-          else
-          Expanded(
-            child: TodoList(),
+                  ),
+                );
+              }
+
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: TodoList(),
+                ),
+              );
+            },
           ),
         ],
       );

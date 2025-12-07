@@ -25,15 +25,6 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: Fab(
-        onSave: () {
-          // Update the ValueNotifier so listeners rebuild.
-          toDoList.value = List<List<dynamic>>.from(toDoList.value)
-            ..add([titleController.text, false]);
-          titleController.clear();
-          Navigator.pop(context);
-        },
-      ),
       appBar: AppbarWidget(),
       body: _tabs[_currentIndex],
       

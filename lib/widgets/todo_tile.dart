@@ -26,8 +26,31 @@ class _TodoTileState extends State<TodoTile> {
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
         child: Row(
           children: [
-            Checkbox(value: widget.taskCompleted, onChanged: widget.onChanged),
-            SizedBox(width: 5,),
+            GestureDetector(
+            onTap: widget.onChanged != null 
+              ? () => widget.onChanged!(!widget.taskCompleted)
+              : null,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: widget.taskCompleted ? Colors.black : Colors.transparent,
+                border: Border.all(
+                  color: widget.taskCompleted ? Colors.black : Colors.grey,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: widget.taskCompleted
+                ? const Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Colors.white,
+                  )
+                : null,
+            ),
+          ),
+            SizedBox(width: 15,),
             Text(
               widget.taskName,
               style: TextStyle(

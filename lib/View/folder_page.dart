@@ -2,13 +2,14 @@ import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/view/folder_detail_page.dart';
 import 'package:cross/widgets/fab.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 
 // ValueNotifier for folders list
 final ValueNotifier<List<Map<String, dynamic>>> foldersList =
     ValueNotifier<List<Map<String, dynamic>>>([
-  {'name': 'Inbox', 'icon': Icons.inbox, 'isDefault': true},
-  {'name': 'Important', 'icon': Icons.star, 'isDefault': true},
-  {'name': 'Completed', 'icon': Icons.check_circle, 'isDefault': true},
+  {'name': 'Inbox', 'icon': IconsaxPlusLinear.directbox_notif, 'isDefault': true},
+  {'name': 'Important', 'icon': IconsaxPlusLinear.heart, 'isDefault': true},
+  {'name': 'Completed', 'icon': IconsaxPlusLinear.tick_square, 'isDefault': true},
 ]);
 
 class FolderPage extends StatefulWidget {
@@ -75,7 +76,7 @@ class _FolderPageState extends State<FolderPage> {
     final newList = List<Map<String, dynamic>>.from(foldersList.value);
     newList.add({
       'name': folderName,
-      'icon': Icons.folder,
+      'icon': IconsaxPlusLinear.folder,
       'isDefault': false,
     });
     foldersList.value = newList;
@@ -103,9 +104,10 @@ class _FolderPageState extends State<FolderPage> {
         foldersList: foldersList,
       ),
       body: Column(
+        // header
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+            padding: const EdgeInsets.only(left: 25, bottom: 25),
             child: Row(
               children: [
                 const Text(
@@ -123,7 +125,7 @@ class _FolderPageState extends State<FolderPage> {
               valueListenable: foldersList,
               builder: (context, folders, _) {
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
                   itemCount: folders.length,
                   itemBuilder: (context, index) {
                     final folder = folders[index];
@@ -132,33 +134,31 @@ class _FolderPageState extends State<FolderPage> {
                     final isDefault = folder['isDefault'] as bool;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 5),
                       child: InkWell(
                         onTap: () => _navigateToFolder(folderName, folderIcon),
                         borderRadius: BorderRadius.circular(12),
                         child: Ink(
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: const Color.fromARGB(255, 243, 243, 243),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.all(16),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           child: Row(
                             children: [
-                              Icon(folderIcon, size: 28),
+                              Icon(folderIcon, size: 24),
                               SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   folderName,
                                   style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
                                   ),
                                 ),
                               ),
-                              if (!isDefault)
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _deleteFolder(index),
+                                Icon(
+                                  IconsaxPlusLinear.arrow_right_3, size: 24,
                                 ),
                             ],
                           ),

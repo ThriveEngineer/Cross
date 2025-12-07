@@ -1,6 +1,7 @@
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/widgets/todo_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 
 class FolderDetailPage extends StatefulWidget {
   final String folderName;
@@ -53,6 +54,10 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(IconsaxPlusLinear.arrow_left_1),
+          onPressed: () => Navigator.pop(context),
+          ),
         title: Row(
           children: [
             Icon(widget.folderIcon),

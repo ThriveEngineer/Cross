@@ -31,7 +31,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor, width: 0.5),
+            top: BorderSide(color: Color.fromARGB(255, 202, 202, 202), width: 0.5),
           ),
         ),
         child: BottomNavigationBar(

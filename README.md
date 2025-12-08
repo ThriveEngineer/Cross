@@ -16,13 +16,13 @@ Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps o
 
 - Light mode
 - Today page
+- Folders
 
 
 
 ## Comming Soon!!!
 
 - Upcoming page
-- Folders
 - View Settings
 - Sync to Notion
 - Sync to Obsidian

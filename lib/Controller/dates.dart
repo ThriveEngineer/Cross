@@ -1,5 +1,7 @@
 // Get current month as integer (1-12)
 int month = DateTime.now().month;
+int day = DateTime.now().day;
+String dayNumber = day.toString();
 String monthNumber = month.toString();
 
 // Get month name

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:cross/Controller/todo_list.dart';
 
 class ViewSettings extends StatefulWidget {
   const ViewSettings({super.key});
@@ -16,7 +17,7 @@ class _ViewSettingsState extends State<ViewSettings> {
                         height: MediaQuery.of(context).size.height * 0.7,
                         width: MediaQuery.of(context).size.width * 1,
                         decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 202, 196, 208),
+                          color: Color.fromARGB(255, 242, 242, 247),
                         ),
                         child: Column(children: [
                           ClipPath(
@@ -60,10 +61,16 @@ class _ViewSettingsState extends State<ViewSettings> {
                                       SizedBox(width: 13,),
                                       Text("Completed tasks"),
                                       Spacer(),
-                                      Switch(
-                                        value: true, onChanged: null,
-                                        activeTrackColor: ColorScheme.of(context).primary,
-                                        ),
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: showCompletedInToday,
+                                        builder: (context, value, _) {
+                                          return Switch(
+                                            value: value,
+                                            onChanged: (v) => showCompletedInToday.value = v,
+                                            activeTrackColor: ColorScheme.of(context).primary,
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
 

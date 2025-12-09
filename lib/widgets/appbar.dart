@@ -34,7 +34,7 @@ class _AppbarWidgetState extends State<AppbarWidget> {
                     showModalBottomSheet(
                       enableDrag: true,
                       showDragHandle: true,
-                      backgroundColor: Color.fromARGB(255, 202, 196, 208),
+                      backgroundColor: Color.fromARGB(255, 242, 242, 247),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),
                       ),

@@ -68,10 +68,16 @@ class _ViewSettingsState extends State<ViewSettings> {
                                       SizedBox(width: 13,),
                                       Text("Folder"),
                                       Spacer(),
-                                      Switch(
-                                        value: true, onChanged: null,
-                                        activeTrackColor: ColorScheme.of(context).primary,
-                                        ),
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: showFolderNames,
+                                        builder: (context, value, _) {
+                                          return Switch(
+                                            value: value,
+                                            onChanged: (v) => showFolderNames.value = v,
+                                            activeTrackColor: ColorScheme.of(context).primary,
+                                            );
+                                        }
+                                      ),
                                     ],
                                   ),
                                 ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cross/Controller/todo_list.dart';
 
 class TodoTile extends StatefulWidget {
 
@@ -29,9 +30,7 @@ class _TodoTileState extends State<TodoTile> {
         child: Row(
           children: [
             GestureDetector(
-            onTap: widget.onChanged != null 
-              ? () => widget.onChanged!(!widget.taskCompleted)
-              : null,
+            onTap: () => widget.onChanged(!widget.taskCompleted),
             child: Container(
               width: 20,
               height: 20,
@@ -61,13 +60,19 @@ class _TodoTileState extends State<TodoTile> {
               ),
               ),
               Spacer(),
-            Text(
-              widget.folderName,
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
-              ),
+            ValueListenableBuilder<bool>(
+              valueListenable: showFolderNames,
+              builder: (context, showFolder, _) {
+                if (!showFolder) return SizedBox.shrink();
+                return Text(
+                  widget.folderName,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

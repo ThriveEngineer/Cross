@@ -10,6 +10,10 @@ final ValueNotifier<List<List<dynamic>>> toDoList =
 // Default: false => do not show completed tasks in Today.
 final ValueNotifier<bool> showCompletedInToday = ValueNotifier<bool>(false);
 
+// Controls whether to show folder names behind task names.
+// Default: true => show folder names.
+final ValueNotifier<bool> showFolderNames = ValueNotifier<bool>(true);
+
 class TodoList extends StatefulWidget {
   final bool showCompleted; // Flag: true => only completed, false => only non-completed
   final bool showAll; // If true, show all tasks regardless of completion

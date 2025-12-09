@@ -103,6 +103,7 @@ class _TodoListState extends State<TodoList> {
           itemBuilder: (context, index) {
             return TodoTile(
               taskName: filteredList[index][0],
+              folderName: filteredList[index].length > 2 ? filteredList[index][2] : 'Inbox', // Pass folder name
               taskCompleted: filteredList[index][1],
               onChanged: (value) => checkBoxChanged(value, index, filteredList),
             );

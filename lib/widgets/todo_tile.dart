@@ -4,11 +4,13 @@ class TodoTile extends StatefulWidget {
 
   final String taskName;
   final bool taskCompleted;
+  final String folderName;
   final Function(bool?) onChanged;
 
   const TodoTile({
     super.key,
     required this.taskName,
+    required this.folderName,
     required this.taskCompleted,
     required this.onChanged,
     });
@@ -21,7 +23,7 @@ class _TodoTileState extends State<TodoTile> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
         child: Row(
@@ -56,6 +58,14 @@ class _TodoTileState extends State<TodoTile> {
               style: TextStyle(
                 color: widget.taskCompleted ? Colors.grey : Colors.black,
                 fontSize: 16,
+              ),
+              ),
+              Spacer(),
+            Text(
+              widget.folderName,
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
               ),
               ),
           ],

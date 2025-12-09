@@ -37,23 +37,6 @@ class _ViewSettingsState extends State<ViewSettings> {
                               ),
                               child: Column(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(IconsaxPlusBold.minus_cirlce),
-                                      SizedBox(width: 13,),
-                                      Text("Cancelled tasks"),
-                                      Spacer(),
-                                      Switch(
-                                        value: true, onChanged: null,
-                                        activeTrackColor: ColorScheme.of(context).primary,
-                                        ),
-                                    ],
-                                  ),
-
-                                  Divider(
-                                    height: 0.5,
-                                    color: Color.fromARGB(255, 194, 194, 194),
-                                  ),
 
                                   Row(
                                     children: [

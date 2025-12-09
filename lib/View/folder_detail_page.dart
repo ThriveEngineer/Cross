@@ -101,7 +101,8 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
               return TodoTile(
                 taskName: folderTasks[index][0],
                 taskCompleted: folderTasks[index][1],
-                onChanged: (value) => checkBoxChanged(value, index),
+                onChanged: (value) => checkBoxChanged(value, index), 
+                folderName: '',
               );
             },
           );

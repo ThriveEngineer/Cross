@@ -98,11 +98,28 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
             padding: const EdgeInsets.only(top: 20),
             itemCount: folderTasks.length,
             itemBuilder: (context, index) {
-              return TodoTile(
-                taskName: folderTasks[index][0],
-                taskCompleted: folderTasks[index][1],
-                onChanged: (value) => checkBoxChanged(value, index), 
-                folderName: '',
+              final task = folderTasks[index];
+              return ValueListenableBuilder<Set<List<dynamic>>>(
+                valueListenable: selectedTasks,
+                builder: (context, selected, _) {
+                  final isSelected = selected.contains(task);
+                  return TodoTile(
+                    taskName: task[0],
+                    taskCompleted: task[1],
+                    isSelected: isSelected,
+                    onChanged: (value) {
+                      if (selectionMode.value) {
+                        final newSet = Set<List<dynamic>>.from(selectedTasks.value);
+                        if (isSelected) newSet.remove(task);
+                        else newSet.add(task);
+                        selectedTasks.value = newSet;
+                      } else {
+                        checkBoxChanged(value, index);
+                      }
+                    },
+                    folderName: '',
+                  );
+                },
               );
             },
           );

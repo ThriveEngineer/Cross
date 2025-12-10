@@ -1,10 +1,8 @@
+import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/widgets/tick_button.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-
-// Import the folders list - you'll need to export this from your folder page
-// For now, we'll reference it here
-// Make sure foldersList is accessible from your folder page
+import 'dart:async';
 
 // Selected folder notifier
 final ValueNotifier<String> selectedFolder = ValueNotifier<String>('Inbox');
@@ -91,93 +89,341 @@ class Fab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        if (isOnFoldersPage) {
-          // Call the create folder callback
-          if (onCreateFolder != null) {
-            onCreateFolder!();
-          }
+    return ValueListenableBuilder(
+      valueListenable: selectionMode,
+      builder: (context, inSelectionMode, _) {
+        if (inSelectionMode) {
+        return FloatingActionButton(
+          onPressed: () {
+            if (isOnFoldersPage) {
+              if (onCreateFolder != null) {
+                onCreateFolder!();
+              }
+            } else {
+              showModalBottomSheet(
+                context: context, 
+                builder: (context) {
+                  return _FocusTimerSheet();
+                }
+              );
+            }
+          },
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          child: Icon(IconsaxPlusLinear.clock_1),
+        );
         } else {
-          // Show task creation bottom sheet
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: Container(
-                  height: 175,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 17, top: 10, right: 17, bottom: 10),
-                        child: TextField(
-                          autofocus: true,
-                          controller: titleController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Task title',
-                            hintStyle: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 22, top: 30),
-                        child: Row(
-                          children: [
-                            ValueListenableBuilder<String>(
-                              valueListenable: selectedFolder,
-                              builder: (context, folder, _) {
-                                return GestureDetector(
-                                  onTap: () => _showFolderSelector(context),
-                                  child: Chip(
-                                    side: BorderSide(
-                                        color: Color.fromARGB(255, 179, 179, 179)),
-                                    label: Row(
-                                      children: [
-                                        Icon(IconsaxPlusLinear.directbox_notif),
-                                        SizedBox(width: 10),
-                                        Text(folder),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            SizedBox(width: 12),
-                            Chip(
-                              side: BorderSide(
-                                  color: Color.fromARGB(255, 179, 179, 179)),
-                              label: Row(
-                                children: [
-                                  Icon(IconsaxPlusLinear.calendar),
-                                  SizedBox(width: 10),
-                                  Text("Today"),
-                                ],
+          return FloatingActionButton(
+          onPressed: () {
+            if (isOnFoldersPage) {
+              if (onCreateFolder != null) {
+                onCreateFolder!();
+              }
+            } else {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (context) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Container(
+                      height: 175,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 17, top: 10, right: 17, bottom: 10),
+                            child: TextField(
+                              autofocus: true,
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Task title',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
-                            SizedBox(width: 12),
-                            TickButton(onPressed: onSave),
-                          ],
-                        ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 22, top: 30),
+                            child: Row(
+                              children: [
+                                ValueListenableBuilder<String>(
+                                  valueListenable: selectedFolder,
+                                  builder: (context, folder, _) {
+                                    return GestureDetector(
+                                      onTap: () => _showFolderSelector(context),
+                                      child: Chip(
+                                        side: BorderSide(
+                                            color: Color.fromARGB(255, 179, 179, 179)),
+                                        label: Row(
+                                          children: [
+                                            Icon(IconsaxPlusLinear.directbox_notif),
+                                            SizedBox(width: 10),
+                                            Text(folder),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(width: 12),
+                                Chip(
+                                  side: BorderSide(
+                                      color: Color.fromARGB(255, 179, 179, 179)),
+                                  label: Row(
+                                    children: [
+                                      Icon(IconsaxPlusLinear.calendar),
+                                      SizedBox(width: 10),
+                                      Text("Today"),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                TickButton(onPressed: onSave),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  );
+                },
+              );
+            }
+          },
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          child: Icon(isOnFoldersPage ? IconsaxPlusLinear.folder_add : IconsaxPlusLinear.add),
+        );
+        }
+      }
+    );
+  }
+}
+
+class _FocusTimerSheet extends StatefulWidget {
+  const _FocusTimerSheet({Key? key}) : super(key: key);
+
+  @override
+  State<_FocusTimerSheet> createState() => _FocusTimerSheetState();
+}
+
+class _FocusTimerSheetState extends State<_FocusTimerSheet> {
+  int totalSeconds = 45 * 60;
+
+  void adjustTime(int minutes) {
+    setState(() {
+      totalSeconds += minutes * 60;
+      if (totalSeconds < 60) totalSeconds = 60;
+      if (totalSeconds > 180 * 60) totalSeconds = 180 * 60;
+    });
+  }
+
+  String formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 242,
+      width: 365,
+      decoration: BoxDecoration(
+        color: ColorScheme.of(context).primary,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        children: [
+          Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () => adjustTime(-5),
+                icon: Icon(
+                  IconsaxPlusLinear.minus,
+                  color: ColorScheme.of(context).onPrimary,
+                  size: 32,
+                ),
+              ),
+              SizedBox(width: 30),
+              Text(
+                formatTime(totalSeconds),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 72,
+                  color: ColorScheme.of(context).onPrimary,
+                ),
+              ),
+              SizedBox(width: 30),
+              IconButton(
+                onPressed: () => adjustTime(5),
+                icon: Icon(
+                  IconsaxPlusLinear.add,
+                  color: ColorScheme.of(context).onPrimary,
+                  size: 32,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 25),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: ColorScheme.of(context).surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              textStyle: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => _FocusTimerFullScreen(
+                    initialSeconds: totalSeconds,
                   ),
                 ),
               );
             },
-          );
-        }
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      child: Icon(isOnFoldersPage ? IconsaxPlusLinear.folder_add : IconsaxPlusLinear.add),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 75),
+              child: Text("Start Focus Session"),
+            ),
+          ),
+          SizedBox(height: 17),
+        ],
+      ),
+    );
+  }
+}
+
+class _FocusTimerFullScreen extends StatefulWidget {
+  final int initialSeconds;
+  
+  const _FocusTimerFullScreen({
+    Key? key,
+    required this.initialSeconds,
+  }) : super(key: key);
+
+  @override
+  State<_FocusTimerFullScreen> createState() => _FocusTimerFullScreenState();
+}
+
+class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
+  late int remainingSeconds;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    remainingSeconds = widget.initialSeconds;
+    startTimer();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (remainingSeconds > 0) {
+        setState(() {
+          remainingSeconds--;
+        });
+      } else {
+        stopTimer();
+      }
+    });
+  }
+
+  void stopTimer() {
+    timer?.cancel();
+    Navigator.of(context).pop();
+  }
+
+  String formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: ColorScheme.of(context).primary,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: stopTimer,
+                      icon: Icon(
+                        IconsaxPlusLinear.close_circle,
+                        color: ColorScheme.of(context).onPrimary,
+                        size: 24,
+                      ),
+                    ),
+                    Text(
+                      'Focus Session',
+                      style: TextStyle(
+                        color: ColorScheme.of(context).onPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(width: 48),
+                  ],
+                ),
+              ),
+              Spacer(),
+              Text(
+                formatTime(remainingSeconds),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 96,
+                  color: ColorScheme.of(context).onPrimary,
+                ),
+              ),
+              SizedBox(height: 60),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: ColorScheme.of(context).surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
+                ),
+                onPressed: stopTimer,
+                child: Text("Stop Session"),
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

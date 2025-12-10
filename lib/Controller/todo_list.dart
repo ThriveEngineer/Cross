@@ -14,6 +14,12 @@ final ValueNotifier<bool> showCompletedInToday = ValueNotifier<bool>(false);
 // Default: true => show folder names.
 final ValueNotifier<bool> showFolderNames = ValueNotifier<bool>(true);
 
+// Controls whether the app is in task selection mode.
+final ValueNotifier<bool> selectionMode = ValueNotifier<bool>(false);
+
+// Holds the set of currently selected tasks.
+final ValueNotifier<Set<List<dynamic>>> selectedTasks = ValueNotifier<Set<List<dynamic>>>({});
+
 class TodoList extends StatefulWidget {
   final bool showCompleted; // Flag: true => only completed, false => only non-completed
   final bool showAll; // If true, show all tasks regardless of completion
@@ -104,12 +110,29 @@ class _TodoListState extends State<TodoList> {
         
         return ListView.builder(
           itemCount: filteredList.length,
-          itemBuilder: (context, index) {
-            return TodoTile(
-              taskName: filteredList[index][0],
-              folderName: filteredList[index].length > 2 ? filteredList[index][2] : 'Inbox', // Pass folder name
-              taskCompleted: filteredList[index][1],
-              onChanged: (value) => checkBoxChanged(value, index, filteredList),
+          itemBuilder: (context, index) { // The builder for each item in the list
+            final task = filteredList[index];
+            return ValueListenableBuilder<Set<List<dynamic>>>(
+              valueListenable: selectedTasks,
+              builder: (context, selected, _) {
+                final isSelected = selected.contains(task);
+                return TodoTile(
+                  taskName: task[0],
+                  folderName: task.length > 2 ? task[2] : 'Inbox',
+                  taskCompleted: task[1],
+                  isSelected: isSelected,
+                  onChanged: (value) {
+                    if (selectionMode.value) {
+                      final newSet = Set<List<dynamic>>.from(selectedTasks.value);
+                      if (isSelected) newSet.remove(task);
+                      else newSet.add(task);
+                      selectedTasks.value = newSet;
+                    } else {
+                      checkBoxChanged(value, index, filteredList);
+                    }
+                  },
+                );
+              },
             );
           },
         );

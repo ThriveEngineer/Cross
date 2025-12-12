@@ -25,6 +25,23 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Fab(
+        onSave: () {
+    if (titleController.text.isNotEmpty) {
+      final newList = List<List<dynamic>>.from(toDoList.value);
+      newList.add([
+        titleController.text,
+        false,
+        selectedFolder.value, // Use the selected folder
+      ]);
+      toDoList.value = newList;
+      titleController.clear();
+      selectedFolder.value = 'Inbox'; // Reset to default
+      Navigator.pop(context);
+    }
+  },
+  foldersList: foldersList, 
+      ),
       appBar: AppbarWidget(),
       body: _tabs[_currentIndex],
       

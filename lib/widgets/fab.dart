@@ -7,7 +7,7 @@ import 'dart:async';
 // Selected folder notifier
 final ValueNotifier<String> selectedFolder = ValueNotifier<String>('Inbox');
 
-class Fab extends StatelessWidget {
+class Fab extends StatefulWidget {
   final VoidCallback onSave;
   final bool isOnFoldersPage;
   final VoidCallback? onCreateFolder;
@@ -21,6 +21,12 @@ class Fab extends StatelessWidget {
     this.foldersList,
   });
 
+  @override
+  State<Fab> createState() => _FabState();
+}
+
+class _FabState extends State<Fab> {
+
   void _showFolderSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -31,19 +37,19 @@ class Fab extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 child: Text(
                   'Select Folder',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               Divider(),
               Expanded(
                 child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: foldersList!,
+                  valueListenable: widget.foldersList!,
                   builder: (context, folders, _) {
                     return ValueListenableBuilder<String>(
                       valueListenable: selectedFolder,
@@ -73,13 +79,20 @@ class Fab extends StatelessWidget {
     );
   }
 
-  Widget _buildFolderOption(BuildContext context, String folderName, IconData icon, String currentFolder) {
+  Widget _buildFolderOption(
+    BuildContext context,
+    String folderName,
+    IconData icon,
+    String currentFolder,
+  ) {
     final isSelected = currentFolder == folderName;
-    
+
     return ListTile(
       leading: Icon(icon),
       title: Text(folderName),
-      trailing: isSelected ? Icon(Icons.check, color: Theme.of(context).primaryColor) : null,
+      trailing: isSelected
+          ? Icon(Icons.check, color: Theme.of(context).primaryColor)
+          : null,
       onTap: () {
         selectedFolder.value = folderName;
         Navigator.pop(context);
@@ -93,113 +106,136 @@ class Fab extends StatelessWidget {
       valueListenable: selectionMode,
       builder: (context, inSelectionMode, _) {
         if (inSelectionMode) {
-        return FloatingActionButton(
-          onPressed: () {
-            if (isOnFoldersPage) {
-              if (onCreateFolder != null) {
-                onCreateFolder!();
-              }
-            } else {
-              showBottomSheet(
-                context: context, 
-                builder: (context) {
-                  return _FocusTimerSheet();
+          return FloatingActionButton(
+            onPressed: () {
+              if (widget.isOnFoldersPage) {
+                if (widget.onCreateFolder != null) {
+                  widget.onCreateFolder!();
                 }
-              );
-            }
-          },
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-          child: Icon(IconsaxPlusLinear.clock_1),
-        );
+              } else {
+                showBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return _FocusTimerSheet();
+                  },
+                );
+              }
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Icon(IconsaxPlusLinear.clock_1),
+          );
         } else {
           return FloatingActionButton(
-          onPressed: () {
-            if (isOnFoldersPage) {
-              if (onCreateFolder != null) {
-                onCreateFolder!();
-              }
-            } else {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (context) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: Container(
-                      height: 175,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 17, top: 10, right: 17, bottom: 10),
-                            child: TextField(
-                              autofocus: true,
-                              controller: titleController,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Task title',
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16,
+            onPressed: () {
+              if (widget.isOnFoldersPage) {
+                if (widget.onCreateFolder != null) {
+                  widget.onCreateFolder!();
+                }
+              } else {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Container(
+                        height: 175,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 17,
+                                top: 10,
+                                right: 17,
+                                bottom: 10,
+                              ),
+                              child: TextField(
+                                autofocus: true,
+                                controller: titleController,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Task title',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 22, top: 30),
-                            child: Row(
-                              children: [
-                                ValueListenableBuilder<String>(
-                                  valueListenable: selectedFolder,
-                                  builder: (context, folder, _) {
-                                    return GestureDetector(
-                                      onTap: () => _showFolderSelector(context),
-                                      child: Chip(
-                                        side: BorderSide(
-                                            color: Color.fromARGB(255, 179, 179, 179)),
-                                        label: Row(
-                                          children: [
-                                            Icon(IconsaxPlusLinear.directbox_notif),
-                                            SizedBox(width: 10),
-                                            Text(folder),
-                                          ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 22, top: 30),
+                              child: Row(
+                                children: [
+                                  ValueListenableBuilder<String>(
+                                    valueListenable: selectedFolder,
+                                    builder: (context, folder, _) {
+                                      return GestureDetector(
+                                        onTap: () =>
+                                            _showFolderSelector(context),
+                                        child: Chip(
+                                          side: BorderSide(
+                                            color: Color.fromARGB(
+                                              255,
+                                              179,
+                                              179,
+                                              179,
+                                            ),
+                                          ),
+                                          label: Row(
+                                            children: [
+                                              Icon(
+                                                IconsaxPlusLinear
+                                                    .directbox_notif,
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text(folder),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                SizedBox(width: 12),
-                                Chip(
-                                  side: BorderSide(
-                                      color: Color.fromARGB(255, 179, 179, 179)),
-                                  label: Row(
-                                    children: [
-                                      Icon(IconsaxPlusLinear.calendar),
-                                      SizedBox(width: 10),
-                                      Text("Today"),
-                                    ],
+                                      );
+                                    },
                                   ),
-                                ),
-                                SizedBox(width: 12),
-                                TickButton(onPressed: onSave),
-                              ],
+                                  SizedBox(width: 12),
+                                  Chip(
+                                    side: BorderSide(
+                                      color: Color.fromARGB(255, 179, 179, 179),
+                                    ),
+                                    label: Row(
+                                      children: [
+                                        Icon(IconsaxPlusLinear.calendar),
+                                        SizedBox(width: 10),
+                                        Text("Today"),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  TickButton(onPressed: widget.onSave),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            }
-          },
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-          child: Icon(isOnFoldersPage ? IconsaxPlusLinear.folder_add : IconsaxPlusLinear.add),
-        );
+                    );
+                  },
+                );
+              }
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Icon(
+              widget.isOnFoldersPage
+                  ? IconsaxPlusLinear.folder_add
+                  : IconsaxPlusLinear.add,
+            ),
+          );
         }
-      }
+      },
     );
   }
 }
@@ -211,16 +247,45 @@ class _FocusTimerSheet extends StatefulWidget {
   State<_FocusTimerSheet> createState() => _FocusTimerSheetState();
 }
 
-class _FocusTimerSheetState extends State<_FocusTimerSheet> {
+class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerProviderStateMixin {
   int totalSeconds = 45 * 60;
   bool isTimerRunning = false;
   late int remainingSeconds;
   Timer? timer;
+  late AnimationController controller;
+  late Animation<double> animation;
+  bool _animationInitialized = false;
 
   @override
   void initState() {
     super.initState();
     remainingSeconds = totalSeconds;
+
+    // Animation controller
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Initialize animation only once
+    if (!_animationInitialized) {
+      animation = Tween<double>(
+        begin: 242,
+        end: MediaQuery.of(context).size.height,
+      ).animate(CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeInOut,
+      ))..addListener(() {
+        setState(() {});
+      });
+      
+      _animationInitialized = true;
+    }
   }
 
   void adjustTime(int minutes) {
@@ -237,7 +302,10 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> {
       isTimerRunning = true;
       remainingSeconds = totalSeconds;
     });
-    
+
+    // Start the animation when timer starts
+    controller.forward();
+
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingSeconds > 0) {
         setState(() {
@@ -247,14 +315,60 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> {
         stopTimer();
       }
     });
+    
+    // Wait for animation to complete before going fullscreen
+    Future.delayed(Duration(milliseconds: 200), () {
+      if (mounted && isTimerRunning) {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            opaque: true,
+            pageBuilder: (context, animation, secondaryAnimation) => _FullscreenTimer(
+              remainingSeconds: remainingSeconds,
+              onStop: stopTimer,
+              onClose: closeTimer,
+              formatTime: formatTime,
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: Duration(milliseconds: 200),
+          ),
+        );
+      }
+    });
   }
 
   void stopTimer() {
     timer?.cancel();
+    
+    // Close fullscreen overlay if open
+    if (isTimerRunning && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    
+    // Change state first, then animate
     setState(() {
       isTimerRunning = false;
       remainingSeconds = totalSeconds;
     });
+    
+    // Reset animation controller
+    controller.reset();
+  }
+  
+  void closeTimer() {
+    timer?.cancel();
+    
+    // Close fullscreen overlay
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    
+    // Close the bottom sheet
+    Navigator.of(context).pop();
   }
 
   String formatTime(int seconds) {
@@ -266,13 +380,14 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> {
   @override
   void dispose() {
     timer?.cancel();
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!isTimerRunning) {
-      // Setup view
+      // Setup view - small box
       return Container(
         height: 242,
         width: 365,
@@ -280,133 +395,250 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> {
           color: ColorScheme.of(context).primary,
           borderRadius: BorderRadius.circular(24),
         ),
+        child: _buildSetupView(context),
+      );
+    } else {
+      // Timer running view - animated expanding box
+      final progress = _animationInitialized ? controller.value : 0.0;
+      
+      return Container(
+        width: _animationInitialized ? animation.value : 365,
+        height: _animationInitialized ? animation.value : 242,
+        decoration: BoxDecoration(
+          color: ColorScheme.of(context).primary,
+          borderRadius: BorderRadius.circular(24 * (1 - progress)),
+        ),
+        child: SafeArea(
+          child: _buildTimerView(context),
+        ),
+      );
+    }
+  }
+
+  Widget _buildSetupView(BuildContext context) {
+    return Column(
+      children: [
+        Spacer(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () => adjustTime(-5),
+              icon: Icon(
+                IconsaxPlusLinear.minus,
+                color: ColorScheme.of(context).onPrimary,
+                size: 32,
+              ),
+            ),
+            SizedBox(width: 30),
+            Text(
+              formatTime(totalSeconds),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 72,
+                color: ColorScheme.of(context).onPrimary,
+              ),
+            ),
+            SizedBox(width: 30),
+            IconButton(
+              onPressed: () => adjustTime(5),
+              icon: Icon(
+                IconsaxPlusLinear.add,
+                color: ColorScheme.of(context).onPrimary,
+                size: 32,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 25),
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: ColorScheme.of(context).surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+          onPressed: startTimer,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 9,
+              horizontal: 75,
+            ),
+            child: Text("Start Focus Session"),
+          ),
+        ),
+        SizedBox(height: 17),
+      ],
+    );
+  }
+
+  Widget _buildTimerView(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: closeTimer,
+                icon: Icon(
+                  IconsaxPlusLinear.close_square,
+                  color: ColorScheme.of(context).onPrimary,
+                  size: 24,
+                ),
+              ),
+              Text(
+                'Focus Session',
+                style: TextStyle(
+                  color: ColorScheme.of(context).onPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(width: 48),
+            ],
+          ),
+        ),
+        Spacer(),
+        Text(
+          formatTime(remainingSeconds),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 96,
+            color: ColorScheme.of(context).onPrimary,
+          ),
+        ),
+        SizedBox(height: 60),
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: ColorScheme.of(context).surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
+          ),
+          onPressed: stopTimer,
+          child: Text("Stop Session"),
+        ),
+        Spacer(),
+      ],
+    );
+  }
+}
+
+final TextEditingController titleController = TextEditingController();
+
+// Fullscreen timer overlay widget
+class _FullscreenTimer extends StatefulWidget {
+  final int remainingSeconds;
+  final VoidCallback onStop;
+  final VoidCallback onClose;
+  final String Function(int) formatTime;
+
+  const _FullscreenTimer({
+    required this.remainingSeconds,
+    required this.onStop,
+    required this.onClose,
+    required this.formatTime,
+  });
+
+  @override
+  State<_FullscreenTimer> createState() => _FullscreenTimerState();
+}
+
+class _FullscreenTimerState extends State<_FullscreenTimer> {
+  late Timer _timer;
+  late int _remainingSeconds;
+
+  @override
+  void initState() {
+    super.initState();
+    _remainingSeconds = widget.remainingSeconds;
+    
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0) {
+        setState(() {
+          _remainingSeconds--;
+        });
+      } else {
+        widget.onStop();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: SafeArea(
         child: Column(
           children: [
-            Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () => adjustTime(-5),
-                  icon: Icon(
-                    IconsaxPlusLinear.minus,
-                    color: ColorScheme.of(context).onPrimary,
-                    size: 32,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: widget.onClose,
+                    icon: Icon(
+                      IconsaxPlusLinear.close_square,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 24,
+                    ),
                   ),
-                ),
-                SizedBox(width: 30),
-                Text(
-                  formatTime(totalSeconds),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 72,
-                    color: ColorScheme.of(context).onPrimary,
+                  Text(
+                    'Focus Session',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                SizedBox(width: 30),
-                IconButton(
-                  onPressed: () => adjustTime(5),
-                  icon: Icon(
-                    IconsaxPlusLinear.add,
-                    color: ColorScheme.of(context).onPrimary,
-                    size: 32,
-                  ),
-                ),
-              ],
+                  SizedBox(width: 48),
+                ],
+              ),
             ),
-            SizedBox(height: 25),
+            Spacer(),
+            Text(
+              widget.formatTime(_remainingSeconds),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 96,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+            SizedBox(height: 60),
             TextButton(
               style: TextButton.styleFrom(
-                backgroundColor: ColorScheme.of(context).surface,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 textStyle: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 16,
+                  fontSize: 18,
                 ),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
               ),
-              onPressed: startTimer,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 75),
-                child: Text("Start Focus Session"),
-              ),
+              onPressed: widget.onStop,
+              child: Text("Stop Session"),
             ),
-            SizedBox(height: 17),
+            Spacer(),
           ],
         ),
-      );
-    } else {
-      // Timer running view (fullscreen-like)
-      return Container(
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          color: ColorScheme.of(context).primary,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        stopTimer();
-                        Navigator.of(context).pop();
-                      },
-                      icon: Icon(
-                        IconsaxPlusLinear.close_circle,
-                        color: ColorScheme.of(context).onPrimary,
-                        size: 24,
-                      ),
-                    ),
-                    Text(
-                      'Focus Session',
-                      style: TextStyle(
-                        color: ColorScheme.of(context).onPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(width: 48),
-                  ],
-                ),
-              ),
-              Spacer(),
-              Text(
-                formatTime(remainingSeconds),
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 96,
-                  color: ColorScheme.of(context).onPrimary,
-                ),
-              ),
-              SizedBox(height: 60),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: ColorScheme.of(context).surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
-                ),
-                onPressed: stopTimer,
-                child: Text("Stop Session"),
-              ),
-              Spacer(),
-            ],
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 }
-
-final TextEditingController titleController = TextEditingController();

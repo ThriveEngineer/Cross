@@ -27,23 +27,6 @@ class _TodayPageState extends State<TodayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: Fab(
-        onSave: () {
-    if (titleController.text.isNotEmpty) {
-      final newList = List<List<dynamic>>.from(toDoList.value);
-      newList.add([
-        titleController.text,
-        false,
-        selectedFolder.value, // Use the selected folder
-      ]);
-      toDoList.value = newList;
-      titleController.clear();
-      selectedFolder.value = 'Inbox'; // Reset to default
-      Navigator.pop(context);
-    }
-  },
-  foldersList: foldersList, 
-      ),
       body: Column(
           children: [
             // Header

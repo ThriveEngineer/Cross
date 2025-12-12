@@ -100,7 +100,7 @@ class Fab extends StatelessWidget {
                 onCreateFolder!();
               }
             } else {
-              showModalBottomSheet(
+              showBottomSheet(
                 context: context, 
                 builder: (context) {
                   return _FocusTimerSheet();
@@ -213,122 +213,31 @@ class _FocusTimerSheet extends StatefulWidget {
 
 class _FocusTimerSheetState extends State<_FocusTimerSheet> {
   int totalSeconds = 45 * 60;
-
-  void adjustTime(int minutes) {
-    setState(() {
-      totalSeconds += minutes * 60;
-      if (totalSeconds < 60) totalSeconds = 60;
-      if (totalSeconds > 180 * 60) totalSeconds = 180 * 60;
-    });
-  }
-
-  String formatTime(int seconds) {
-    int minutes = seconds ~/ 60;
-    int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 242,
-      width: 365,
-      decoration: BoxDecoration(
-        color: ColorScheme.of(context).primary,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        children: [
-          Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: () => adjustTime(-5),
-                icon: Icon(
-                  IconsaxPlusLinear.minus,
-                  color: ColorScheme.of(context).onPrimary,
-                  size: 32,
-                ),
-              ),
-              SizedBox(width: 30),
-              Text(
-                formatTime(totalSeconds),
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 72,
-                  color: ColorScheme.of(context).onPrimary,
-                ),
-              ),
-              SizedBox(width: 30),
-              IconButton(
-                onPressed: () => adjustTime(5),
-                icon: Icon(
-                  IconsaxPlusLinear.add,
-                  color: ColorScheme.of(context).onPrimary,
-                  size: 32,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 25),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: ColorScheme.of(context).surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              textStyle: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => _FocusTimerFullScreen(
-                    initialSeconds: totalSeconds,
-                  ),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 75),
-              child: Text("Start Focus Session"),
-            ),
-          ),
-          SizedBox(height: 17),
-        ],
-      ),
-    );
-  }
-}
-
-class _FocusTimerFullScreen extends StatefulWidget {
-  final int initialSeconds;
-  
-  const _FocusTimerFullScreen({
-    Key? key,
-    required this.initialSeconds,
-  }) : super(key: key);
-
-  @override
-  State<_FocusTimerFullScreen> createState() => _FocusTimerFullScreenState();
-}
-
-class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
+  bool isTimerRunning = false;
   late int remainingSeconds;
   Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    remainingSeconds = widget.initialSeconds;
-    startTimer();
+    remainingSeconds = totalSeconds;
+  }
+
+  void adjustTime(int minutes) {
+    setState(() {
+      totalSeconds += minutes * 60;
+      if (totalSeconds < 60) totalSeconds = 60;
+      if (totalSeconds > 180 * 60) totalSeconds = 180 * 60;
+      remainingSeconds = totalSeconds;
+    });
   }
 
   void startTimer() {
+    setState(() {
+      isTimerRunning = true;
+      remainingSeconds = totalSeconds;
+    });
+    
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingSeconds > 0) {
         setState(() {
@@ -342,7 +251,10 @@ class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
 
   void stopTimer() {
     timer?.cancel();
-    Navigator.of(context).pop();
+    setState(() {
+      isTimerRunning = false;
+      remainingSeconds = totalSeconds;
+    });
   }
 
   String formatTime(int seconds) {
@@ -359,10 +271,76 @@ class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    if (!isTimerRunning) {
+      // Setup view
+      return Container(
+        height: 242,
+        width: 365,
+        decoration: BoxDecoration(
+          color: ColorScheme.of(context).primary,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          children: [
+            Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () => adjustTime(-5),
+                  icon: Icon(
+                    IconsaxPlusLinear.minus,
+                    color: ColorScheme.of(context).onPrimary,
+                    size: 32,
+                  ),
+                ),
+                SizedBox(width: 30),
+                Text(
+                  formatTime(totalSeconds),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 72,
+                    color: ColorScheme.of(context).onPrimary,
+                  ),
+                ),
+                SizedBox(width: 30),
+                IconButton(
+                  onPressed: () => adjustTime(5),
+                  icon: Icon(
+                    IconsaxPlusLinear.add,
+                    color: ColorScheme.of(context).onPrimary,
+                    size: 32,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 25),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: ColorScheme.of(context).surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: startTimer,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 75),
+                child: Text("Start Focus Session"),
+              ),
+            ),
+            SizedBox(height: 17),
+          ],
+        ),
+      );
+    } else {
+      // Timer running view (fullscreen-like)
+      return Container(
         width: double.infinity,
-        height: double.infinity,
+        height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           color: ColorScheme.of(context).primary,
         ),
@@ -375,7 +353,10 @@ class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      onPressed: stopTimer,
+                      onPressed: () {
+                        stopTimer();
+                        Navigator.of(context).pop();
+                      },
                       icon: Icon(
                         IconsaxPlusLinear.close_circle,
                         color: ColorScheme.of(context).onPrimary,
@@ -423,8 +404,8 @@ class _FocusTimerFullScreenState extends State<_FocusTimerFullScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
 

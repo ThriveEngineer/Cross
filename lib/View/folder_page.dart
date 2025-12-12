@@ -88,6 +88,104 @@ class _FolderPageState extends State<FolderPage> {
     foldersList.value = newList;
   }
 
+  void _showFolderMoveDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text(
+                  'Move ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''} to folder',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Divider(),
+              ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: foldersList,
+                builder: (context, folders, _) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: folders.length,
+                    itemBuilder: (context, index) {
+                      final folder = folders[index];
+                      return ListTile(
+                        leading: Icon(folder['icon'] as IconData),
+                        title: Text(folder['name'] as String),
+                        onTap: () {
+                          _moveTasksToFolder(folder['name'] as String);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Tasks'),
+          content: Text('Are you sure you want to delete ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteSelectedTasks();
+                Navigator.pop(context);
+              },
+              child: Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _moveTasksToFolder(String targetFolder) {
+    final newList = List<List<dynamic>>.from(toDoList.value);
+    
+    for (final task in selectedTasks.value) {
+      final index = newList.indexOf(task);
+      if (index != -1) {
+        final updatedTask = List<dynamic>.from(task);
+        if (updatedTask.length > 2) {
+          updatedTask[2] = targetFolder;
+        } else {
+          updatedTask.add(targetFolder);
+        }
+        newList[index] = updatedTask;
+      }
+    }
+    
+    toDoList.value = newList;
+    selectedTasks.value = Set<List<dynamic>>.from({});
+    selectionMode.value = false;
+  }
+
+  void _deleteSelectedTasks() {
+    final newList = List<List<dynamic>>.from(toDoList.value);
+    newList.removeWhere((task) => selectedTasks.value.contains(task));
+    toDoList.value = newList;
+    selectedTasks.value = Set<List<dynamic>>.from({});
+    selectionMode.value = false;
+  }
+
   @override
   void dispose() {
     _folderController.dispose();
@@ -96,14 +194,7 @@ class _FolderPageState extends State<FolderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Fab(
-        onSave: () {},
-        isOnFoldersPage: true,
-        onCreateFolder: showCreateFolderDialog,
-        foldersList: foldersList,
-      ),
-      body: Column(
+    return Column(
         // header
         children: [
           Padding(
@@ -171,7 +262,6 @@ class _FolderPageState extends State<FolderPage> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 }

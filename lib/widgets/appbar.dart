@@ -28,7 +28,7 @@ class _AppbarWidgetState extends State<AppbarWidget> {
             leading: TextButton(
               onPressed: () {
                 selectionMode.value = false;
-                selectedTasks.value = {}; // Clear selected tasks
+                selectedTasks.value = Set<List<dynamic>>.from({}); // Clear selected tasks
               },
               child: Text(
                 'Cancel',

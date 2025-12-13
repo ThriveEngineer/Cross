@@ -1,0 +1,148 @@
+import 'package:cross/View/integrations_page.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:cross/Controller/todo_list.dart';
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          width: MediaQuery.of(context).size.width * 1,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 242, 242, 247),
+                          ),
+                          child: Column(children: [
+
+                            SizedBox(height: 5),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                }, 
+                                icon: Icon(IconsaxPlusLinear.arrow_left_1,)
+                                ),
+
+                                SizedBox(width: MediaQuery.of(context).size.width * 0.32,),
+
+                              Text(
+                              "Settings", style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+
+                              Spacer(),
+                              ]),
+    
+                          SizedBox(height: 25,),
+                          ClipPath(
+                            clipper: ShapeBorderClipper(
+                              shape: ContinuousRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                              width: 353,
+                              decoration: BoxDecoration(
+                                color: ColorScheme.of(context).surface,
+                                borderRadius: BorderRadius.circular(18)
+                              ),
+                              child: Column(
+                                children: [
+
+                                  Row(
+                                    children: [
+                                      Icon(IconsaxPlusBold.paintbucket),
+                                      SizedBox(width: 13,),
+                                      Text("Theme"),
+                                      Spacer(),
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: showCompletedInToday,
+                                        builder: (context, value, _) {
+                                          return IconButton(
+                                            onPressed: () {}, 
+                                            icon: Icon(IconsaxPlusBold.arrow_down)
+                                            );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  Divider(
+                                    height: 0.5,
+                                    color: Color.fromARGB(255, 194, 194, 194),
+                                  ),
+
+                                  Row(
+                                    children: [
+                                      Icon(IconsaxPlusLinear.global),
+                                      SizedBox(width: 13,),
+                                      Text("Language | Coming soon!"),
+                                      Spacer(),
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: showFolderNames,
+                                        builder: (context, value, _) {
+                                          return IconButton(
+                                            onPressed: () {}, 
+                                            icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                            );
+                                        }
+                                      ),
+                                    ],
+                                  ),
+
+                                  Divider(
+                                    height: 0.5,
+                                    color: Color.fromARGB(255, 194, 194, 194),
+                                  ),
+
+                                  Row(
+                                    children: [
+                                      Icon(IconsaxPlusLinear.component),
+                                      SizedBox(width: 13,),
+                                      Text("Integrations"),
+                                      Spacer(),
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: showFolderNames,
+                                        builder: (context, value, _) {
+                                          return IconButton(
+                                            onPressed: () {
+                                              showCupertinoSheet(
+                                                context: context,
+                                                builder: (context) => Material(
+                                                  color: Color.fromARGB(255, 242, 242, 247),
+                                                  child: IntegrationsPage(),
+                                                ),
+                                                );
+                                            }, 
+                                            icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                            );
+                                        }
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 25,),
+                        ],
+                        ),
+                      ),
+    );
+  }
+}

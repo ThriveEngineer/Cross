@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   iconsax_plus: ^1.0.0
   wakelock_plus: ^1.4.0
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -60,9 +61,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - lib/assets/Notion-logo.svg.png
+   #  - images/a_dot_ham.j
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -95,20 +95,25 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
 
   void _moveTasksToFolder(String targetFolder) {
     final newList = List<List<dynamic>>.from(toDoList.value);
-    
+
     for (final task in selectedTasks.value) {
       final index = newList.indexOf(task);
       if (index != -1) {
-        final updatedTask = List<dynamic>.from(task);
-        if (updatedTask.length > 2) {
-          updatedTask[2] = targetFolder;
-        } else {
-          updatedTask.add(targetFolder);
-        }
-        newList[index] = updatedTask;
+        final taskName = task[0];
+        final isCompleted = task.length > 1 ? task[1] : false;
+        final previousFolder = task.length > 3 && task[3] != null ? task[3] : null;
+        final dateValue = task.length > 4 ? task[4] : null;
+
+        newList[index] = [
+          taskName,
+          isCompleted,
+          targetFolder,
+          previousFolder,
+          dateValue,
+        ];
       }
     }
-    
+
     toDoList.value = newList;
     selectedTasks.value = Set<List<dynamic>>.from({});
     selectionMode.value = false;
@@ -191,14 +196,17 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                         titleController.text,
                         false,
                         selectedFolder.value,
+                        null, // previousFolder placeholder
+                        selectedDate.value?.toIso8601String(), // date as ISO string
                       ]);
                       toDoList.value = newList;
                       titleController.clear();
                       selectedFolder.value = 'Inbox';
+                      selectedDate.value = null;
                       Navigator.pop(context);
                     }
                   },
-                  foldersList: foldersList, 
+                  foldersList: foldersList,
                 ),
               ],
             );
@@ -211,14 +219,17 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                     titleController.text,
                     false,
                     selectedFolder.value,
+                    null, // previousFolder placeholder
+                    selectedDate.value?.toIso8601String(), // date as ISO string
                   ]);
                   toDoList.value = newList;
                   titleController.clear();
                   selectedFolder.value = 'Inbox';
+                  selectedDate.value = null;
                   Navigator.pop(context);
                 }
               },
-              foldersList: foldersList, 
+              foldersList: foldersList,
             );
           }
         },

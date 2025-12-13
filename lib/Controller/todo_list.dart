@@ -37,7 +37,7 @@ class _TodoListState extends State<TodoList> {
     // Find the actual task in the main list
     final taskToUpdate = filteredList[index];
     final mainListIndex = toDoList.value.indexOf(taskToUpdate);
-    
+
     if (mainListIndex != -1) {
       final newList = List<List<dynamic>>.from(toDoList.value);
       final currentTask = newList[mainListIndex];
@@ -46,7 +46,8 @@ class _TodoListState extends State<TodoList> {
 
       final taskName = currentTask[0];
       final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
-      final storedPreviousFolder = currentTask.length > 3 ? currentTask[3] as String : null;
+      final storedPreviousFolder = currentTask.length > 3 && currentTask[3] != null ? currentTask[3] as String : null;
+      final dateValue = currentTask.length > 4 ? currentTask[4] : null;
 
       if (newCompletedStatus) {
         // Marking as completed: store current folder in index 3 and set folder to 'Completed'
@@ -55,6 +56,7 @@ class _TodoListState extends State<TodoList> {
           true,
           'Completed',
           currentFolder,
+          dateValue,
         ];
       } else {
         // Marking as not completed: restore previous folder if stored, otherwise try to use currentFolder (if not 'Completed'), else 'Inbox'
@@ -69,6 +71,8 @@ class _TodoListState extends State<TodoList> {
           taskName,
           false,
           restoreFolder,
+          null,
+          dateValue,
         ];
       }
       toDoList.value = newList;

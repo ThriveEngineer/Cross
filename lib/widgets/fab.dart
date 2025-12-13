@@ -7,6 +7,9 @@ import 'dart:async';
 // Selected folder notifier
 final ValueNotifier<String> selectedFolder = ValueNotifier<String>('Inbox');
 
+// Selected date notifier (null means no specific date selected)
+final ValueNotifier<DateTime?> selectedDate = ValueNotifier<DateTime?>(null);
+
 class Fab extends StatefulWidget {
   final VoidCallback onSave;
   final bool isOnFoldersPage;
@@ -77,6 +80,40 @@ class _FabState extends State<Fab> {
         );
       },
     );
+  }
+
+  Future<void> _showDatePicker(BuildContext context) async {
+    final DateTime now = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate.value ?? now,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      selectedDate.value = picked;
+    }
+  }
+
+  String _getDateLabel(DateTime? date) {
+    if (date == null) {
+      return "No Date";
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(Duration(days: 1));
+    final dateOnly = DateTime(date.year, date.month, date.day);
+
+    if (dateOnly == today) {
+      return "Today";
+    } else if (dateOnly == tomorrow) {
+      return "Tomorrow";
+    } else {
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return "${months[date.month - 1]} ${date.day}";
+    }
   }
 
   Widget _buildFolderOption(
@@ -200,17 +237,25 @@ class _FabState extends State<Fab> {
                                     },
                                   ),
                                   SizedBox(width: 12),
-                                  Chip(
-                                    side: BorderSide(
-                                      color: Color.fromARGB(255, 179, 179, 179),
-                                    ),
-                                    label: Row(
-                                      children: [
-                                        Icon(IconsaxPlusLinear.calendar),
-                                        SizedBox(width: 10),
-                                        Text("Today"),
-                                      ],
-                                    ),
+                                  ValueListenableBuilder<DateTime?>(
+                                    valueListenable: selectedDate,
+                                    builder: (context, date, _) {
+                                      return GestureDetector(
+                                        onTap: () => _showDatePicker(context),
+                                        child: Chip(
+                                          side: BorderSide(
+                                            color: Color.fromARGB(255, 179, 179, 179),
+                                          ),
+                                          label: Row(
+                                            children: [
+                                              Icon(IconsaxPlusLinear.calendar),
+                                              SizedBox(width: 10),
+                                              Text(_getDateLabel(date)),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   SizedBox(width: 12),
                                   TickButton(onPressed: widget.onSave),

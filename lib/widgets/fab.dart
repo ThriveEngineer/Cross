@@ -33,8 +33,13 @@ class _FabState extends State<Fab> {
   void _showFolderSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
-        return Container(
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -124,16 +129,35 @@ class _FabState extends State<Fab> {
   ) {
     final isSelected = currentFolder == folderName;
 
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(folderName),
-      trailing: isSelected
-          ? Icon(Icons.check, color: Theme.of(context).primaryColor)
-          : null,
-      onTap: () {
-        selectedFolder.value = folderName;
-        Navigator.pop(context);
-      },
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: isSelected
+          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+          : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: ListTile(
+        leading: AnimatedScale(
+          scale: isSelected ? 1.1 : 1.0,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeOutBack,
+          child: Icon(icon),
+        ),
+        title: Text(folderName),
+        trailing: AnimatedScale(
+          scale: isSelected ? 1.0 : 0.0,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeOutBack,
+          child: Icon(Icons.check, color: Theme.of(context).primaryColor),
+        ),
+        onTap: () {
+          selectedFolder.value = folderName;
+          Navigator.pop(context);
+        },
+      ),
     );
   }
 
@@ -142,39 +166,56 @@ class _FabState extends State<Fab> {
     return ValueListenableBuilder(
       valueListenable: selectionMode,
       builder: (context, inSelectionMode, _) {
-        if (inSelectionMode) {
-          return FloatingActionButton(
-            onPressed: () {
-              if (widget.isOnFoldersPage) {
-                if (widget.onCreateFolder != null) {
-                  widget.onCreateFolder!();
-                }
-              } else {
-                showBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return _FocusTimerSheet();
-                  },
-                );
-              }
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Icon(IconsaxPlusLinear.clock_1),
-          );
-        } else {
-          return FloatingActionButton(
-            onPressed: () {
-              if (widget.isOnFoldersPage) {
-                if (widget.onCreateFolder != null) {
-                  widget.onCreateFolder!();
-                }
-              } else {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) {
+        return AnimatedSwitcher(
+          duration: Duration(milliseconds: 250),
+          switchInCurve: Curves.easeOutBack,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(
+              scale: animation,
+              child: RotationTransition(
+                turns: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: inSelectionMode
+            ? FloatingActionButton(
+                key: ValueKey('timer'),
+                onPressed: () {
+                  if (widget.isOnFoldersPage) {
+                    if (widget.onCreateFolder != null) {
+                      widget.onCreateFolder!();
+                    }
+                  } else {
+                    showBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return _FocusTimerSheet();
+                      },
+                    );
+                  }
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Icon(IconsaxPlusLinear.clock_1),
+              )
+            : FloatingActionButton(
+                key: ValueKey('add'),
+                onPressed: () {
+                  if (widget.isOnFoldersPage) {
+                    if (widget.onCreateFolder != null) {
+                      widget.onCreateFolder!();
+                    }
+                  } else {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      builder: (context) {
                     return Padding(
                       padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -210,10 +251,21 @@ class _FabState extends State<Fab> {
                                   ValueListenableBuilder<String>(
                                     valueListenable: selectedFolder,
                                     builder: (context, folder, _) {
-                                      return GestureDetector(
-                                        onTap: () =>
-                                            _showFolderSelector(context),
-                                        child: Chip(
+                                      return TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 1.0, end: 1.0),
+                                        duration: Duration(milliseconds: 100),
+                                        builder: (context, scale, child) {
+                                          return Transform.scale(
+                                            scale: scale,
+                                            child: child,
+                                          );
+                                        },
+                                        child: GestureDetector(
+                                          onTapDown: (_) {},
+                                          onTapUp: (_) {},
+                                          onTap: () =>
+                                              _showFolderSelector(context),
+                                          child: Chip(
                                           side: BorderSide(
                                             color: Color.fromARGB(
                                               255,
@@ -233,6 +285,7 @@ class _FabState extends State<Fab> {
                                             ],
                                           ),
                                         ),
+                                      ),
                                       );
                                     },
                                   ),
@@ -240,18 +293,34 @@ class _FabState extends State<Fab> {
                                   ValueListenableBuilder<DateTime?>(
                                     valueListenable: selectedDate,
                                     builder: (context, date, _) {
-                                      return GestureDetector(
-                                        onTap: () => _showDatePicker(context),
-                                        child: Chip(
-                                          side: BorderSide(
-                                            color: Color.fromARGB(255, 179, 179, 179),
-                                          ),
-                                          label: Row(
-                                            children: [
-                                              Icon(IconsaxPlusLinear.calendar),
-                                              SizedBox(width: 10),
-                                              Text(_getDateLabel(date)),
-                                            ],
+                                      return TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 1.0, end: 1.0),
+                                        duration: Duration(milliseconds: 100),
+                                        builder: (context, scale, child) {
+                                          return Transform.scale(
+                                            scale: scale,
+                                            child: child,
+                                          );
+                                        },
+                                        child: GestureDetector(
+                                          onTap: () => _showDatePicker(context),
+                                          child: Chip(
+                                            side: BorderSide(
+                                              color: Color.fromARGB(255, 179, 179, 179),
+                                            ),
+                                            label: Row(
+                                              children: [
+                                                Icon(IconsaxPlusLinear.calendar),
+                                                SizedBox(width: 10),
+                                                AnimatedSwitcher(
+                                                  duration: Duration(milliseconds: 200),
+                                                  child: Text(
+                                                    _getDateLabel(date),
+                                                    key: ValueKey(date),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       );
@@ -270,16 +339,16 @@ class _FabState extends State<Fab> {
                 );
               }
             },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Icon(
-              widget.isOnFoldersPage
-                  ? IconsaxPlusLinear.folder_add
-                  : IconsaxPlusLinear.add,
-            ),
-          );
-        }
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Icon(
+                  widget.isOnFoldersPage
+                      ? IconsaxPlusLinear.folder_add
+                      : IconsaxPlusLinear.add,
+                ),
+              ),
+        );
       },
     );
   }

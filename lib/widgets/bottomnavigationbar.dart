@@ -27,8 +27,13 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
   void _showFolderMoveDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
-        return Container(
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -49,13 +54,35 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                     itemCount: folders.length,
                     itemBuilder: (context, index) {
                       final folder = folders[index];
-                      return ListTile(
-                        leading: Icon(folder['icon'] as IconData),
-                        title: Text(folder['name'] as String),
-                        onTap: () {
-                          _moveTasksToFolder(folder['name'] as String);
-                          Navigator.pop(context);
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: Duration(milliseconds: 300 + (index * 50)),
+                        curve: Curves.easeOut,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 10 * (1 - value)),
+                              child: child,
+                            ),
+                          );
                         },
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: Icon(folder['icon'] as IconData),
+                            title: Text(folder['name'] as String),
+                            onTap: () {
+                              _moveTasksToFolder(folder['name'] as String);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
                       );
                     },
                   );
@@ -72,7 +99,23 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: 0.8 + (0.2 * value),
+              child: Opacity(
+                opacity: value,
+                child: child,
+              ),
+            );
+          },
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
           title: Text('Delete Tasks'),
           content: Text('Are you sure you want to delete ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''}?'),
           actions: [
@@ -88,6 +131,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
               child: Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
+        ),
         );
       },
     );
@@ -140,14 +184,16 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                 ValueListenableBuilder<Set<List<dynamic>>>(
                   valueListenable: selectedTasks,
                   builder: (context, selected, _) {
-                    return Container(
+                    return AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeOutBack,
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: Offset(0, 2),
                           ),
@@ -157,28 +203,46 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Move to folder button
-                          IconButton(
-                            onPressed: selected.isEmpty ? null : () {
-                              _showFolderMoveDialog(context);
-                            },
-                            icon: Icon(
-                              IconsaxPlusLinear.folder_cross,
-                              color: selected.isEmpty 
-                                ? Colors.grey.shade400 
-                                : Theme.of(context).primaryColor,
+                          AnimatedScale(
+                            scale: selected.isEmpty ? 0.9 : 1.0,
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeOutBack,
+                            child: IconButton(
+                              onPressed: selected.isEmpty ? null : () {
+                                _showFolderMoveDialog(context);
+                              },
+                              icon: AnimatedSwitcher(
+                                duration: Duration(milliseconds: 200),
+                                child: Icon(
+                                  IconsaxPlusLinear.folder_cross,
+                                  key: ValueKey(selected.isEmpty),
+                                  color: selected.isEmpty
+                                    ? Colors.grey.shade400
+                                    : Theme.of(context).primaryColor,
+                                ),
+                              ),
                             ),
                           ),
                           SizedBox(width: 8),
                           // Delete button
-                          IconButton(
-                            onPressed: selected.isEmpty ? null : () {
-                              _showDeleteConfirmation(context);
-                            },
-                            icon: Icon(
-                              IconsaxPlusLinear.trash,
-                              color: selected.isEmpty 
-                                ? Colors.grey.shade400 
-                                : Colors.red,
+                          AnimatedScale(
+                            scale: selected.isEmpty ? 0.9 : 1.0,
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeOutBack,
+                            child: IconButton(
+                              onPressed: selected.isEmpty ? null : () {
+                                _showDeleteConfirmation(context);
+                              },
+                              icon: AnimatedSwitcher(
+                                duration: Duration(milliseconds: 200),
+                                child: Icon(
+                                  IconsaxPlusLinear.trash,
+                                  key: ValueKey(selected.isEmpty),
+                                  color: selected.isEmpty
+                                    ? Colors.grey.shade400
+                                    : Colors.red,
+                                ),
+                              ),
                             ),
                           ),
                         ],

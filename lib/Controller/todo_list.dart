@@ -50,11 +50,12 @@ class _TodoListState extends State<TodoList> {
       final dateValue = currentTask.length > 4 ? currentTask[4] : null;
 
       if (newCompletedStatus) {
-        // Marking as completed: store current folder in index 3 and set folder to 'Completed'
+        // First update just the completion status without moving to Completed folder
         newList[mainListIndex] = [
           taskName,
           true,
-          'Completed',
+          'Completed', // Keep in current folder temporarily
+          currentFolder, // Store current folder
           currentFolder,
           dateValue,
         ];

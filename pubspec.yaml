@@ -37,6 +37,7 @@ dependencies:
   iconsax_plus: ^1.0.0
   wakelock_plus: ^1.4.0
   flutter_svg: ^2.2.3
+  shared_preferences: ^2.3.4
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,21 @@
 import 'package:cross/Controller/theme.dart';
+import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/widgets/bottomnavigationbar.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load all persisted data
+  try {
+    await DataPersistence.loadAllData();
+  } catch (e) {
+    print('Could not load persisted data: $e');
+  }
+
+  // Initialize auto-save listeners
+  DataPersistence.initializeAutoSave();
+
   runApp(const MyApp());
 }
 

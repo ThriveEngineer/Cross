@@ -39,6 +39,15 @@ class _UpcomingPageState extends State<UpcomingPage> {
       }
     }
 
+    // Apply sorting within each date group
+    // Note: Date sorting doesn't make sense here since tasks are already grouped by date
+    // So we apply other sort options (manual, name, folder) within each date group
+    if (currentSortOption.value != SortOption.date) {
+      grouped.forEach((dateKey, tasks) {
+        grouped[dateKey] = sortTasks(tasks, currentSortOption.value);
+      });
+    }
+
     return grouped;
   }
 
@@ -129,10 +138,13 @@ class _UpcomingPageState extends State<UpcomingPage> {
 
           // Tasks grouped by date
           Expanded(
-            child: ValueListenableBuilder<List<List<dynamic>>>(
-              valueListenable: toDoList,
-              builder: (context, list, _) {
-                final groupedTasks = _groupTasksByDate(list);
+            child: ValueListenableBuilder<SortOption>(
+              valueListenable: currentSortOption,
+              builder: (context, sortOption, _) {
+                return ValueListenableBuilder<List<List<dynamic>>>(
+                  valueListenable: toDoList,
+                  builder: (context, list, _) {
+                    final groupedTasks = _groupTasksByDate(list);
 
                 if (groupedTasks.isEmpty) {
                   return Center(
@@ -258,8 +270,10 @@ class _UpcomingPageState extends State<UpcomingPage> {
                   },
                 );
               },
-            ),
-          ),
+            );
+          },
+        ),
+      ),
         ],
       ),
     );

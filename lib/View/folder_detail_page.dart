@@ -20,13 +20,16 @@ class FolderDetailPage extends StatefulWidget {
 class _FolderDetailPageState extends State<FolderDetailPage> {
   // Get tasks for this folder
   List<List<dynamic>> _getTasksForFolder() {
-    return toDoList.value.where((task) {
+    final tasks = toDoList.value.where((task) {
       // task structure: [taskName, isCompleted, folderName]
       if (task.length > 2) {
         return task[2] == widget.folderName;
       }
       return false;
     }).toList();
+
+    // Apply current sort option
+    return sortTasks(tasks, currentSortOption.value);
   }
 
   void checkBoxChanged(bool? value, int index) {
@@ -66,58 +69,63 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
           ],
         ),
       ),
-      body: ValueListenableBuilder<List<List<dynamic>>>(
-        valueListenable: toDoList,
-        builder: (context, list, _) {
-          final folderTasks = _getTasksForFolder();
+      body: ValueListenableBuilder<SortOption>(
+        valueListenable: currentSortOption,
+        builder: (context, sortOption, _) {
+          return ValueListenableBuilder<List<List<dynamic>>>(
+            valueListenable: toDoList,
+            builder: (context, list, _) {
+              final folderTasks = _getTasksForFolder();
 
-          if (folderTasks.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    widget.folderIcon,
-                    size: 64,
-                    color: Colors.grey,
+              if (folderTasks.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        widget.folderIcon,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        "No tasks in ${widget.folderName}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    "No tasks in ${widget.folderName}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+                );
+              }
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: 20),
-            itemCount: folderTasks.length,
-            itemBuilder: (context, index) {
-              final task = folderTasks[index];
-              return ValueListenableBuilder<Set<List<dynamic>>>(
-                valueListenable: selectedTasks,
-                builder: (context, selected, _) {
-                  final isSelected = selected.contains(task);
-                  return TodoTile(
-                    taskName: task[0],
-                    taskCompleted: task[1],
-                    isSelected: isSelected,
-                    onChanged: (value) {
-                      if (selectionMode.value) {
-                        final newSet = Set<List<dynamic>>.from(selectedTasks.value);
-                        if (isSelected) newSet.remove(task);
-                        else newSet.add(task);
-                        selectedTasks.value = newSet;
-                      } else {
-                        checkBoxChanged(value, index);
-                      }
+              return ListView.builder(
+                padding: const EdgeInsets.only(top: 20),
+                itemCount: folderTasks.length,
+                itemBuilder: (context, index) {
+                  final task = folderTasks[index];
+                  return ValueListenableBuilder<Set<List<dynamic>>>(
+                    valueListenable: selectedTasks,
+                    builder: (context, selected, _) {
+                      final isSelected = selected.contains(task);
+                      return TodoTile(
+                        taskName: task[0],
+                        taskCompleted: task[1],
+                        isSelected: isSelected,
+                        onChanged: (value) {
+                          if (selectionMode.value) {
+                            final newSet = Set<List<dynamic>>.from(selectedTasks.value);
+                            if (isSelected) newSet.remove(task);
+                            else newSet.add(task);
+                            selectedTasks.value = newSet;
+                          } else {
+                            checkBoxChanged(value, index);
+                          }
+                        },
+                        folderName: '',
+                      );
                     },
-                    folderName: '',
                   );
                 },
               );

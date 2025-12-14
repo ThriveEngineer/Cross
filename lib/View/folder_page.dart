@@ -4,13 +4,7 @@ import 'package:cross/widgets/fab.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
-// ValueNotifier for folders list
-final ValueNotifier<List<Map<String, dynamic>>> foldersList =
-    ValueNotifier<List<Map<String, dynamic>>>([
-  {'name': 'Inbox', 'icon': IconsaxPlusLinear.directbox_notif, 'isDefault': true},
-  {'name': 'Important', 'icon': IconsaxPlusLinear.heart, 'isDefault': true},
-  {'name': 'Completed', 'icon': IconsaxPlusLinear.tick_square, 'isDefault': true},
-]);
+// foldersList is now imported from todo_list.dart
 
 class FolderPage extends StatefulWidget {
   const FolderPage({super.key});

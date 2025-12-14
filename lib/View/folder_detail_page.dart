@@ -36,17 +36,27 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
     final tasks = _getTasksForFolder();
     if (index < tasks.length) {
       final taskToUpdate = tasks[index];
-      
+
       // Find this task in the main list and update it
       final mainListIndex = toDoList.value.indexOf(taskToUpdate);
       if (mainListIndex != -1) {
         final newList = List<List<dynamic>>.from(toDoList.value);
-        final newCompletedStatus = !(newList[mainListIndex][1] as bool);
-        
+        final currentTask = newList[mainListIndex];
+        final newCompletedStatus = !(currentTask[1] as bool);
+
+        final taskName = currentTask[0];
+        final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
+        final previousFolder = currentTask.length > 3 ? currentTask[3] : null;
+        final dateValue = currentTask.length > 4 ? currentTask[4] : null;
+        final notionPageId = currentTask.length > 5 ? currentTask[5] : null;
+
         newList[mainListIndex] = [
-          newList[mainListIndex][0],
+          taskName,
           newCompletedStatus,
-          newCompletedStatus ? 'Completed' : (newList[mainListIndex].length > 2 ? newList[mainListIndex][2] : 'Inbox')
+          newCompletedStatus ? 'Completed' : currentFolder,
+          newCompletedStatus ? currentFolder : previousFolder,
+          dateValue,
+          notionPageId, // PRESERVE NOTION PAGE ID
         ];
         toDoList.value = newList;
       }

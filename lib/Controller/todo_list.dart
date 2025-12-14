@@ -150,16 +150,17 @@ class _TodoListState extends State<TodoList> {
       final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
       final storedPreviousFolder = currentTask.length > 3 && currentTask[3] != null ? currentTask[3] as String : null;
       final dateValue = currentTask.length > 4 ? currentTask[4] : null;
+      final notionPageId = currentTask.length > 5 ? currentTask[5] : null; // PRESERVE NOTION PAGE ID
 
       if (newCompletedStatus) {
-        // First update just the completion status without moving to Completed folder
+        // Marking as completed: move to Completed folder
         newList[mainListIndex] = [
           taskName,
           true,
-          'Completed', // Keep in current folder temporarily
-          currentFolder, // Store current folder
-          currentFolder,
+          'Completed',
+          currentFolder, // Store current folder for restoration
           dateValue,
+          notionPageId, // PRESERVE NOTION PAGE ID
         ];
       } else {
         // Marking as not completed: restore previous folder if stored, otherwise try to use currentFolder (if not 'Completed'), else 'Inbox'
@@ -176,6 +177,7 @@ class _TodoListState extends State<TodoList> {
           restoreFolder,
           null,
           dateValue,
+          notionPageId, // PRESERVE NOTION PAGE ID
         ];
       }
       toDoList.value = newList;

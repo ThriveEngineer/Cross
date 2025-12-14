@@ -262,6 +262,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                         selectedFolder.value,
                         null, // previousFolder placeholder
                         selectedDate.value?.toIso8601String(), // date as ISO string
+                        null, // notionPageId - will be filled when first synced
                       ]);
                       toDoList.value = newList;
                       titleController.clear();
@@ -285,6 +286,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                     selectedFolder.value,
                     null, // previousFolder placeholder
                     selectedDate.value?.toIso8601String(), // date as ISO string
+                    null, // notionPageId - will be filled when first synced
                   ]);
                   toDoList.value = newList;
                   titleController.clear();

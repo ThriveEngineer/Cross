@@ -87,6 +87,7 @@ class _UpcomingPageState extends State<UpcomingPage> {
       final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
       final storedPreviousFolder = currentTask.length > 3 && currentTask[3] != null ? currentTask[3] as String : null;
       final dateValue = currentTask.length > 4 ? currentTask[4] : null;
+      final notionPageId = currentTask.length > 5 ? currentTask[5] : null; // PRESERVE NOTION PAGE ID
 
       if (newCompletedStatus) {
         // Marking as completed: store current folder in index 3 and set folder to 'Completed'
@@ -96,6 +97,7 @@ class _UpcomingPageState extends State<UpcomingPage> {
           'Completed',
           currentFolder,
           dateValue,
+          notionPageId, // PRESERVE NOTION PAGE ID
         ];
       } else {
         // Marking as not completed: restore previous folder if stored
@@ -112,6 +114,7 @@ class _UpcomingPageState extends State<UpcomingPage> {
           restoreFolder,
           null,
           dateValue,
+          notionPageId, // PRESERVE NOTION PAGE ID
         ];
       }
       toDoList.value = newList;

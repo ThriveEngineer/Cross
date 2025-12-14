@@ -87,20 +87,109 @@ class _SettingsPageState extends State<SettingsPage> {
                                     color: Color.fromARGB(255, 194, 194, 194),
                                   ),
 
+                                  InkWell(
+                                    onTap: () {
+                                      
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(IconsaxPlusLinear.global),
+                                        SizedBox(width: 13,),
+                                        Text("Language | Coming soon!"),
+                                        Spacer(),
+                                        ValueListenableBuilder<bool>(
+                                          valueListenable: showFolderNames,
+                                          builder: (context, value, _) {
+                                            return IconButton(
+                                              onPressed: () {}, 
+                                              icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                              );
+                                          }
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  Divider(
+                                    height: 0.5,
+                                    color: Color.fromARGB(255, 194, 194, 194),
+                                  ),
+
+                                  InkWell(
+                                    onTap: () {
+                                      showCupertinoSheet(
+                                                  context: context,
+                                                  builder: (context) => Material(
+                                                    color: Color.fromARGB(255, 242, 242, 247),
+                                                    child: IntegrationsPage(),
+                                                  ),
+                                                  );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(IconsaxPlusLinear.component),
+                                        SizedBox(width: 13,),
+                                        Text("Integrations"),
+                                        Spacer(),
+                                        ValueListenableBuilder<bool>(
+                                          valueListenable: showFolderNames,
+                                          builder: (context, value, _) {
+                                            return IconButton(
+                                              onPressed: () {
+                                                showCupertinoSheet(
+                                                  context: context,
+                                                  builder: (context) => Material(
+                                                    color: Color.fromARGB(255, 242, 242, 247),
+                                                    child: IntegrationsPage(),
+                                                  ),
+                                                  );
+                                              }, 
+                                              icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                              );
+                                          }
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 35,),
+
+                          ClipPath(
+                            clipper: ShapeBorderClipper(
+                              shape: ContinuousRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                              width: 353,
+                              decoration: BoxDecoration(
+                                color: ColorScheme.of(context).surface,
+                                borderRadius: BorderRadius.circular(18)
+                              ),
+                              child: Column(
+                                children: [
+
                                   Row(
                                     children: [
-                                      Icon(IconsaxPlusLinear.global),
+                                      Icon(IconsaxPlusBold.like_1),
                                       SizedBox(width: 13,),
-                                      Text("Language | Coming soon!"),
+                                      Text("Feedback"),
                                       Spacer(),
                                       ValueListenableBuilder<bool>(
-                                        valueListenable: showFolderNames,
+                                        valueListenable: showCompletedInToday,
                                         builder: (context, value, _) {
                                           return IconButton(
                                             onPressed: () {}, 
-                                            icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                            icon: Icon(IconsaxPlusLinear.arrow_right_3)
                                             );
-                                        }
+                                        },
                                       ),
                                     ],
                                   ),
@@ -110,36 +199,46 @@ class _SettingsPageState extends State<SettingsPage> {
                                     color: Color.fromARGB(255, 194, 194, 194),
                                   ),
 
-                                  Row(
-                                    children: [
-                                      Icon(IconsaxPlusLinear.component),
-                                      SizedBox(width: 13,),
-                                      Text("Integrations"),
-                                      Spacer(),
-                                      ValueListenableBuilder<bool>(
-                                        valueListenable: showFolderNames,
-                                        builder: (context, value, _) {
-                                          return IconButton(
-                                            onPressed: () {
-                                              showCupertinoSheet(
-                                                context: context,
-                                                builder: (context) => Material(
-                                                  color: Color.fromARGB(255, 242, 242, 247),
-                                                  child: IntegrationsPage(),
-                                                ),
-                                                );
-                                            }, 
-                                            icon: Icon(IconsaxPlusLinear.arrow_right_3),
-                                            );
-                                        }
-                                      ),
-                                    ],
+                                  InkWell(
+                                    onTap: () {
+                                      showCupertinoSheet(
+                                                  context: context,
+                                                  builder: (context) => Material(
+                                                    color: Color.fromARGB(255, 242, 242, 247),
+                                                    child: IntegrationsPage(),
+                                                  ),
+                                                  );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(IconsaxPlusBold.messages_2),
+                                        SizedBox(width: 13,),
+                                        Text("Follow us"),
+                                        Spacer(),
+                                        ValueListenableBuilder<bool>(
+                                          valueListenable: showFolderNames,
+                                          builder: (context, value, _) {
+                                            return IconButton(
+                                              onPressed: () {
+                                                showCupertinoSheet(
+                                                  context: context,
+                                                  builder: (context) => Material(
+                                                    color: Color.fromARGB(255, 242, 242, 247),
+                                                    child: IntegrationsPage(),
+                                                  ),
+                                                  );
+                                              }, 
+                                              icon: Icon(IconsaxPlusLinear.arrow_right_3),
+                                              );
+                                          }
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          SizedBox(height: 25,),
                         ],
                         ),
                       ),

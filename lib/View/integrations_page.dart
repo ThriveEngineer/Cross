@@ -63,7 +63,15 @@ class _IntegrationsPageState extends State<IntegrationsPage> {
 
                                   Row(
                                     children: [
-                                      Image(image: AssetImage('lib/assets/Notion-logo.svg.png',)),
+                                      SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: Image(
+                                          image: AssetImage(
+                                            'lib/assets/Notion-logo.svg.png',
+                                            )
+                                           )
+                                          ),
                                       SizedBox(width: 13,),
                                       Text("Notion"),
                                       Spacer(),
@@ -86,32 +94,17 @@ class _IntegrationsPageState extends State<IntegrationsPage> {
 
                                   Row(
                                     children: [
-                                      Icon(IconsaxPlusLinear.global),
+                                      SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: Image(
+                                          image: AssetImage(
+                                            'lib/assets/2023_Obsidian_logo.svg.png',
+                                            )
+                                           )
+                                          ),
                                       SizedBox(width: 13,),
-                                      Text("Language | Coming soon!"),
-                                      Spacer(),
-                                      ValueListenableBuilder<bool>(
-                                        valueListenable: showFolderNames,
-                                        builder: (context, value, _) {
-                                          return IconButton(
-                                            onPressed: () {}, 
-                                            icon: Icon(IconsaxPlusLinear.arrow_right_3),
-                                            );
-                                        }
-                                      ),
-                                    ],
-                                  ),
-
-                                  Divider(
-                                    height: 0.5,
-                                    color: Color.fromARGB(255, 194, 194, 194),
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      Icon(IconsaxPlusLinear.component),
-                                      SizedBox(width: 13,),
-                                      Text("Integrations"),
+                                      Text("Obsidian"),
                                       Spacer(),
                                       ValueListenableBuilder<bool>(
                                         valueListenable: showFolderNames,

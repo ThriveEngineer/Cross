@@ -38,6 +38,13 @@ extension SortOptionExtension on SortOption {
 }
 
 // Use a ValueNotifier so changes to the list notify listeners and rebuild UI.
+// Task structure: [taskName, isCompleted, folderName, previousFolder, dateValue, notionPageId]
+// Index 0: String - Task name
+// Index 1: bool - Completion status
+// Index 2: String - Current folder name
+// Index 3: String? - Previous folder (for restoration when uncompleted)
+// Index 4: String? - Due date (ISO8601 format)
+// Index 5: String? - Notion page ID (for sync tracking)
 final ValueNotifier<List<List<dynamic>>> toDoList =
   ValueNotifier<List<List<dynamic>>>([
 ]);

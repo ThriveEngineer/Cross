@@ -1,3 +1,4 @@
+import 'package:cross/View/notion_settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -61,30 +62,42 @@ class _IntegrationsPageState extends State<IntegrationsPage> {
                               child: Column(
                                 children: [
 
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: Image(
-                                          image: AssetImage(
-                                            'lib/assets/Notion-logo.svg.png',
-                                            )
-                                           )
-                                          ),
-                                      SizedBox(width: 13,),
-                                      Text("Notion"),
-                                      Spacer(),
-                                      ValueListenableBuilder<bool>(
-                                        valueListenable: showCompletedInToday,
-                                        builder: (context, value, _) {
-                                          return IconButton(
-                                            onPressed: () {}, 
-                                            icon: Icon(IconsaxPlusLinear.arrow_right_3)
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => NotionSettingsPage(),
+                                        ),
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Image(
+                                            image: AssetImage(
+                                              'lib/assets/Notion-logo.svg.png',
+                                              )
+                                             )
+                                            ),
+                                        SizedBox(width: 13,),
+                                        Text("Notion"),
+                                        Spacer(),
+                                        IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => NotionSettingsPage(),
+                                              ),
                                             );
-                                        },
-                                      ),
-                                    ],
+                                          },
+                                          icon: Icon(IconsaxPlusLinear.arrow_right_3)
+                                        ),
+                                      ],
+                                    ),
                                   ),
 
                                   Divider(

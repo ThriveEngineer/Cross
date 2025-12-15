@@ -10,6 +10,8 @@ class ViewSettings extends StatefulWidget {
 }
 
 class _ViewSettingsState extends State<ViewSettings> {
+  final GlobalKey _sortButtonKey = GlobalKey();
+
   IconData _getSortIcon(SortOption option) {
     switch (option) {
       case SortOption.manual:
@@ -99,76 +101,73 @@ class _ViewSettingsState extends State<ViewSettings> {
                           SizedBox(height: 25,),
 
                                   GestureDetector(
+                                    key: _sortButtonKey,
                                     onTap: () {
-                                      // Show sort options in a bottom sheet
-                                      showModalBottomSheet(
+                                      // Get button position for menu placement on the right
+                                      final RenderBox button = _sortButtonKey.currentContext!.findRenderObject() as RenderBox;
+                                      final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+                                      final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                                      final Size buttonSize = button.size;
+
+                                      // Position menu aligned to the right edge of the button
+                                      final RelativeRect position = RelativeRect.fromLTRB(
+                                        buttonPosition.dx, // left
+                                        buttonPosition.dy + buttonSize.height, // top (below button)
+                                        overlay.size.width - (buttonPosition.dx + buttonSize.width), // right
+                                        overlay.size.height - (buttonPosition.dy + buttonSize.height), // bottom
+                                      );
+
+                                      // Show popup menu
+                                      showMenu<SortOption>(
                                         context: context,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) => Container(
-                                          decoration: BoxDecoration(
-                                            color: ColorScheme.of(context).surface,
-                                            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                                          ),
-                                          padding: EdgeInsets.symmetric(vertical: 20),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // Header
-                                              Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                                child: Text(
-                                                  'Sort By',
+                                        position: position,
+                                        elevation: 0.1,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        items: SortOption.values.map((option) {
+                                          final isSelected = currentSortOption.value == option;
+                                          return PopupMenuItem<SortOption>(
+                                            value: option,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  _getSortIcon(option),
+                                                  color: isSelected
+                                                    ? ColorScheme.of(context).primary
+                                                    : null,
+                                                  size: 22,
+                                                ),
+                                                SizedBox(width: 12),
+                                                Text(
+                                                  option.displayName,
                                                   style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
+                                                    color: isSelected
+                                                      ? ColorScheme.of(context).primary
+                                                      : null,
+                                                    fontWeight: isSelected
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
                                                   ),
                                                 ),
-                                              ),
-                                              Divider(height: 1),
-
-                                              // Sort options
-                                              ...SortOption.values.map((option) =>
-                                                ValueListenableBuilder<SortOption>(
-                                                  valueListenable: currentSortOption,
-                                                  builder: (context, currentSort, _) {
-                                                    final isSelected = currentSort == option;
-                                                    return ListTile(
-                                                      leading: Icon(
-                                                        _getSortIcon(option),
-                                                        color: isSelected
-                                                          ? ColorScheme.of(context).primary
-                                                          : null,
-                                                      ),
-                                                      title: Text(
-                                                        option.displayName,
-                                                        style: TextStyle(
-                                                          color: isSelected
-                                                            ? ColorScheme.of(context).primary
-                                                            : null,
-                                                          fontWeight: isSelected
-                                                            ? FontWeight.bold
-                                                            : FontWeight.normal,
-                                                        ),
-                                                      ),
-                                                      trailing: isSelected
-                                                        ? Icon(
-                                                            IconsaxPlusBold.tick_circle,
-                                                            color: ColorScheme.of(context).primary,
-                                                          )
-                                                        : null,
-                                                      onTap: () async {
-                                                        await SortPreferences.saveSortPreference(option);
-                                                        Navigator.pop(context); // Close sort options sheet
-                                                        Navigator.pop(context); // Close view settings sheet
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ).toList(),
-                                            ],
-                                          ),
-                                        ),
-                                      );
+                                                if (isSelected) ...[
+                                                  Spacer(),
+                                                  Icon(
+                                                    IconsaxPlusBold.tick_circle,
+                                                    color: ColorScheme.of(context).primary,
+                                                    size: 20,
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ).then((selectedOption) async {
+                                        if (selectedOption != null) {
+                                          await SortPreferences.saveSortPreference(selectedOption);
+                                          Navigator.pop(context); // Close view settings sheet
+                                        }
+                                      });
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),

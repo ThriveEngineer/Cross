@@ -1,5 +1,6 @@
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/services/notion_service.dart';
+import 'package:cross/services/notion_auto_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
@@ -64,7 +65,9 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
         setState(() {
           _isConnected = true;
         });
-        _showMessage('Successfully connected to Notion!');
+        // Update auto-sync connection state
+        NotionAutoSyncService.instance.updateConnectionState(true);
+        _showMessage('Successfully connected to Notion! Auto-sync is now enabled.');
       } else {
         await NotionService.disconnect();
         _showMessage('Failed to connect. Please check your credentials.');
@@ -88,6 +91,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
       setState(() {
         _isConnected = false;
       });
+      // Update auto-sync connection state
+      NotionAutoSyncService.instance.updateConnectionState(false);
       _apiKeyController.clear();
       _databaseIdController.clear();
       _showMessage('Disconnected from Notion');
@@ -197,6 +202,73 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
     );
   }
 
+  Widget _buildInfoRow(String label, String value, {Color? color}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getSyncStateText(SyncState state) {
+    switch (state) {
+      case SyncState.syncing:
+        return 'Syncing...';
+      case SyncState.success:
+        return 'Active';
+      case SyncState.error:
+        return 'Error';
+      case SyncState.idle:
+        return 'Active';
+      case SyncState.disabled:
+        return 'Disabled';
+    }
+  }
+
+  Color? _getSyncStateColor(SyncState state) {
+    switch (state) {
+      case SyncState.syncing:
+        return Colors.blue;
+      case SyncState.success:
+      case SyncState.idle:
+        return Colors.green;
+      case SyncState.error:
+        return Colors.red;
+      case SyncState.disabled:
+        return Colors.grey;
+    }
+  }
+
+  String _getTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${difference.inDays}d ago';
+    }
+  }
+
   @override
   void dispose() {
     _apiKeyController.dispose();
@@ -264,6 +336,71 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
               ),
 
               SizedBox(height: 25),
+
+              // Auto-sync Status (when connected)
+              if (_isConnected) ...[
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  width: 353,
+                  decoration: BoxDecoration(
+                    color: ColorScheme.of(context).surface,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(IconsaxPlusLinear.autobrightness, size: 20),
+                          SizedBox(width: 10),
+                          Text(
+                            'Auto-sync',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      ValueListenableBuilder<SyncState>(
+                        valueListenable: NotionAutoSyncService.instance.syncState,
+                        builder: (context, state, _) {
+                          return _buildInfoRow(
+                            'Status',
+                            _getSyncStateText(state),
+                            color: _getSyncStateColor(state),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      ValueListenableBuilder<String?>(
+                        valueListenable: NotionAutoSyncService.instance.lastSyncTime,
+                        builder: (context, lastSync, _) {
+                          if (lastSync != null) {
+                            try {
+                              final syncTime = DateTime.parse(lastSync);
+                              final timeAgo = _getTimeAgo(syncTime);
+                              return _buildInfoRow('Last synced', timeAgo);
+                            } catch (e) {
+                              return _buildInfoRow('Last synced', 'Never');
+                            }
+                          }
+                          return _buildInfoRow('Last synced', 'Never');
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      ValueListenableBuilder<int>(
+                        valueListenable: NotionAutoSyncService.instance.syncedTasksCount,
+                        builder: (context, count, _) {
+                          return _buildInfoRow('Tasks synced', '$count');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 25),
+              ],
 
               // Configuration
               if (!_isConnected) ...[
@@ -380,7 +517,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                                   ),
                                 )
                               : Icon(IconsaxPlusLinear.refresh),
-                          label: Text(_isSyncing ? 'Syncing...' : 'Sync All Tasks'),
+                          label: Text(_isSyncing ? 'Syncing...' : 'Force Sync Now'),
                         ),
                       ),
                       SizedBox(height: 12),
@@ -410,7 +547,9 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  'Your tasks will be synced to your Notion database with their folder and due date information.',
+                  _isConnected
+                      ? 'Auto-sync is enabled. Your tasks will automatically sync to Notion within 3 seconds of any changes.'
+                      : 'Your tasks will be synced to your Notion database with their folder and due date information.',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],

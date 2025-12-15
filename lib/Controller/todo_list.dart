@@ -3,6 +3,7 @@ import 'package:cross/widgets/todo_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/notion_auto_sync_service.dart';
 
 // Enum for sort options
 enum SortOption {
@@ -441,6 +442,9 @@ class DataPersistence {
     showFolderNames.addListener(() {
       saveSettings();
     });
+
+    // Initialize Notion auto-sync
+    NotionAutoSyncService.instance.initialize();
 
     // Note: Sort preference is saved immediately when changed via SortPreferences.saveSortPreference
   }

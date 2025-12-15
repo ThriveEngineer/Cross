@@ -1,8 +1,5 @@
 import 'package:cross/Controller/dates.dart';
 import 'package:cross/Controller/todo_list.dart';
-import 'package:cross/View/folder_page.dart';
-import 'package:cross/widgets/fab.dart';
-import 'package:cross/widgets/todo_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 

@@ -2,7 +2,6 @@ import 'package:cross/View/settings_page.dart';
 import 'package:cross/widgets/vertical_menu.dart';
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/widgets/view_settings.dart';
-import 'package:cross/Controller/todo_list.dart'; // Ensure this is imported for toDoList
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';

@@ -16,7 +16,7 @@ class Fab extends StatefulWidget {
   final VoidCallback? onCreateFolder;
   final ValueNotifier<List<Map<String, dynamic>>>? foldersList;
 
-  Fab({
+  const Fab({
     super.key,
     required this.onSave,
     this.isOnFoldersPage = false,
@@ -220,7 +220,7 @@ class _FabState extends State<Fab> {
                       padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
-                      child: Container(
+                      child: SizedBox(
                         height: 175,
                         child: Column(
                           children: [

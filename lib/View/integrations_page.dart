@@ -1,5 +1,4 @@
 import 'package:cross/View/notion_settings_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:cross/Controller/todo_list.dart';

@@ -399,6 +399,50 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     ],
                   ),
                 ),
+
+                // Periodic Sync toggle
+                SizedBox(height: 25),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  width: 353,
+                  decoration: BoxDecoration(
+                    color: ColorScheme.of(context).surface,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(IconsaxPlusLinear.refresh, size: 20),
+                          SizedBox(width: 10),
+                          Text(
+                            'Periodic Sync',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: NotionAutoSyncService.instance.pollingEnabled,
+                        builder: (context, enabled, _) {
+                          return SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text('Auto-fetch from Notion'),
+                            subtitle: Text('Check for changes every 5 minutes'),
+                            value: enabled,
+                            onChanged: (value) {
+                              NotionAutoSyncService.instance.setPollingEnabled(value);
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: 25),
               ],
 
@@ -548,7 +592,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
                   _isConnected
-                      ? 'Auto-sync is enabled. Your tasks will automatically sync to Notion within 3 seconds of any changes.'
+                      ? 'Bi-directional sync is enabled. Local changes sync to Notion within 3 seconds. Changes from Notion are fetched every 5 minutes or when you pull to refresh.'
                       : 'Your tasks will be synced to your Notion database with their folder and due date information.',
                   style: TextStyle(
                     fontSize: 12,

@@ -38,14 +38,61 @@ extension SortOptionExtension on SortOption {
   }
 }
 
+/// Helper class for managing task timestamps (for bi-directional Notion sync)
+class TaskTimestamp {
+  /// Get current UTC timestamp as ISO8601 string
+  static String now() {
+    return DateTime.now().toUtc().toIso8601String();
+  }
+
+  /// Get timestamp from task (index 6), returns null if not present
+  static String? getTimestamp(List<dynamic> task) {
+    return task.length > 6 ? task[6] as String? : null;
+  }
+
+  /// Set timestamp on task at index 6
+  static List<dynamic> setTimestamp(List<dynamic> task, String timestamp) {
+    final updated = List<dynamic>.from(task);
+    while (updated.length < 6) {
+      updated.add(null);
+    }
+    if (updated.length == 6) {
+      updated.add(timestamp);
+    } else {
+      updated[6] = timestamp;
+    }
+    return updated;
+  }
+
+  /// Compare two timestamps, returns:
+  /// - negative if t1 is older than t2
+  /// - positive if t1 is newer than t2
+  /// - 0 if equal
+  static int compare(String? t1, String? t2) {
+    if (t1 == null && t2 == null) return 0;
+    if (t1 == null) return -1; // t1 is older (doesn't exist)
+    if (t2 == null) return 1;  // t1 is newer
+
+    try {
+      final dt1 = DateTime.parse(t1);
+      final dt2 = DateTime.parse(t2);
+      return dt1.compareTo(dt2);
+    } catch (e) {
+      print('Error comparing timestamps: $e');
+      return 0;
+    }
+  }
+}
+
 // Use a ValueNotifier so changes to the list notify listeners and rebuild UI.
-// Task structure: [taskName, isCompleted, folderName, previousFolder, dateValue, notionPageId]
+// Task structure: [taskName, isCompleted, folderName, previousFolder, dateValue, notionPageId, lastModified]
 // Index 0: String - Task name
 // Index 1: bool - Completion status
 // Index 2: String - Current folder name
 // Index 3: String? - Previous folder (for restoration when uncompleted)
 // Index 4: String? - Due date (ISO8601 format)
 // Index 5: String? - Notion page ID (for sync tracking)
+// Index 6: String? - Last modified timestamp (ISO8601 UTC format)
 final ValueNotifier<List<List<dynamic>>> toDoList =
   ValueNotifier<List<List<dynamic>>>([
 ]);
@@ -162,6 +209,7 @@ class _TodoListState extends State<TodoList> {
           currentFolder, // Store current folder for restoration
           dateValue,
           notionPageId, // PRESERVE NOTION PAGE ID
+          TaskTimestamp.now(), // Add timestamp
         ];
       } else {
         // Marking as not completed: restore previous folder if stored, otherwise try to use currentFolder (if not 'Completed'), else 'Inbox'
@@ -179,6 +227,7 @@ class _TodoListState extends State<TodoList> {
           null,
           dateValue,
           notionPageId, // PRESERVE NOTION PAGE ID
+          TaskTimestamp.now(), // Add timestamp
         ];
       }
       toDoList.value = newList;
@@ -409,9 +458,41 @@ class DataPersistence {
     }
   }
 
+  /// Migrate existing tasks to include timestamp (index 6) for bi-directional sync
+  static Future<void> _migrateTasksToV2() async {
+    bool needsMigration = false;
+    final migratedTasks = <List<dynamic>>[];
+
+    for (final task in toDoList.value) {
+      if (task.length < 7 || task[6] == null) {
+        needsMigration = true;
+        // Add current timestamp for existing tasks
+        final migrated = List<dynamic>.from(task);
+        while (migrated.length < 6) {
+          migrated.add(null);
+        }
+        if (migrated.length == 6) {
+          migrated.add(TaskTimestamp.now());
+        } else if (migrated[6] == null) {
+          migrated[6] = TaskTimestamp.now();
+        }
+        migratedTasks.add(migrated);
+      } else {
+        migratedTasks.add(task);
+      }
+    }
+
+    if (needsMigration) {
+      print('Migrating ${toDoList.value.length} tasks to include timestamps');
+      toDoList.value = migratedTasks;
+      await saveTasks();
+    }
+  }
+
   /// Load all data (tasks, folders, settings, sort preference)
   static Future<void> loadAllData() async {
     await loadTasks();
+    await _migrateTasksToV2(); // Migrate tasks to include timestamps
     await loadSettings();
     await SortPreferences.loadSortPreference();
 

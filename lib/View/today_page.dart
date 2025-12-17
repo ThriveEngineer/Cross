@@ -1,5 +1,6 @@
 import 'package:cross/Controller/dates.dart';
 import 'package:cross/Controller/todo_list.dart';
+import 'package:cross/services/notion_auto_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
@@ -24,8 +25,17 @@ class _TodayPageState extends State<TodayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-          children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Trigger immediate sync from Notion
+          await NotionAutoSyncService.instance.triggerImmediateSync();
+        },
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - kToolbarHeight,
+            child: Column(
+              children: [
             // Header
             Row(
               children: [
@@ -192,8 +202,11 @@ class _TodayPageState extends State<TodayPage> {
                 );
               },
             ),
-          ],
+              ],
+            ),
+          ),
         ),
+      ),
     );
   }
 }

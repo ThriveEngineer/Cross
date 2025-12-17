@@ -131,60 +131,92 @@ class SyncStatusIndicator extends StatelessWidget {
           return SizedBox.shrink();
         }
 
-        // Determine icon and color based on sync state
-        IconData icon;
-        Color color;
+        return ValueListenableBuilder<SyncDirection>(
+          valueListenable: NotionAutoSyncService.instance.syncDirection,
+          builder: (context, direction, _) {
+            // Determine icon and color based on sync state and direction
+            IconData icon;
+            Color color;
 
-        switch (syncState) {
-          case SyncState.syncing:
-            icon = IconsaxPlusLinear.cloud;
-            color = Colors.blue;
-            break;
-          case SyncState.success:
-            icon = IconsaxPlusLinear.cloud_change;
-            color = Colors.green;
-            break;
-          case SyncState.error:
-            icon = IconsaxPlusLinear.cloud_cross;
-            color = Colors.red;
-            break;
-          case SyncState.idle:
-          default:
-            icon = IconsaxPlusLinear.cloud;
-            color = Colors.grey;
-            break;
-        }
+            if (syncState == SyncState.syncing) {
+              // Show different icon based on direction
+              switch (direction) {
+                case SyncDirection.toNotion:
+                  icon = IconsaxPlusLinear.arrow_up_3; // Upload arrow
+                  break;
+                case SyncDirection.fromNotion:
+                  icon = IconsaxPlusLinear.arrow_down_1; // Download arrow
+                  break;
+                case SyncDirection.bidirectional:
+                  icon = IconsaxPlusLinear.refresh; // Bidirectional
+                  break;
+                default:
+                  icon = IconsaxPlusLinear.cloud;
+              }
+              color = Colors.blue;
+            } else {
+              switch (syncState) {
+                case SyncState.success:
+                  icon = IconsaxPlusLinear.cloud_change;
+                  color = Colors.green;
+                  break;
+                case SyncState.error:
+                  icon = IconsaxPlusLinear.cloud_cross;
+                  color = Colors.red;
+                  break;
+                case SyncState.idle:
+                default:
+                  icon = IconsaxPlusLinear.cloud;
+                  color = Colors.grey;
+                  break;
+              }
+            }
 
-        return IconButton(
-          icon: syncState == SyncState.syncing
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                )
-              : Icon(icon, color: color, size: 22),
-          tooltip: _getTooltipText(syncState),
-          onPressed: () => _showSyncDetails(context),
+            return IconButton(
+              icon: syncState == SyncState.syncing
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                      ),
+                    )
+                  : Icon(icon, color: color, size: 22),
+              tooltip: _getTooltipText(syncState, direction),
+              onPressed: () => _showSyncDetails(context),
+            );
+          },
         );
       },
     );
   }
 
-  String _getTooltipText(SyncState syncState) {
+  String _getTooltipText(SyncState syncState, SyncDirection direction) {
+    if (syncState == SyncState.syncing) {
+      switch (direction) {
+        case SyncDirection.toNotion:
+          return 'Uploading to Notion...';
+        case SyncDirection.fromNotion:
+          return 'Downloading from Notion...';
+        case SyncDirection.bidirectional:
+          return 'Syncing with Notion...';
+        default:
+          return 'Syncing...';
+      }
+    }
+
     switch (syncState) {
-      case SyncState.syncing:
-        return 'Syncing to Notion...';
       case SyncState.success:
-        return 'Synced to Notion';
+        return 'Synced with Notion';
       case SyncState.error:
         return 'Sync failed - tap for details';
       case SyncState.idle:
         return 'Notion connected';
       case SyncState.disabled:
         return 'Notion not connected';
+      case SyncState.syncing:
+        return 'Syncing...';
     }
   }
 

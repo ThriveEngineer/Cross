@@ -1,5 +1,6 @@
 import 'package:cross/Controller/theme.dart';
 import 'package:cross/Controller/todo_list.dart';
+import 'package:cross/services/notion_auto_sync_service.dart';
 import 'package:cross/widgets/bottomnavigationbar.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,32 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      // App came to foreground - trigger immediate sync
+      NotionAutoSyncService.instance.triggerImmediateSync();
+    } else if (state == AppLifecycleState.paused) {
+      // App went to background - stop polling to save battery
+      NotionAutoSyncService.instance.stopPolling();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

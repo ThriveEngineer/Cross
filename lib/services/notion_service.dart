@@ -345,4 +345,138 @@ class NotionService {
       return false;
     }
   }
+
+  /// Query all tasks from Notion database
+  /// Returns list of Notion pages with their properties
+  static Future<List<Map<String, dynamic>>> queryAllTasks() async {
+    try {
+      final apiKey = await getApiKey();
+      final databaseId = await getDatabaseId();
+
+      if (apiKey == null || databaseId == null) {
+        throw Exception('Notion not configured');
+      }
+
+      final url = Uri.parse('$_notionApiBase/databases/$databaseId/query');
+
+      // Query body - fetch all pages, no filter
+      final body = {
+        'page_size': 100, // Notion max is 100 per request
+      };
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Notion-Version': _notionApiVersion,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final results = responseData['results'] as List;
+
+        // Parse results into simplified format
+        final tasks = <Map<String, dynamic>>[];
+        for (final page in results) {
+          tasks.add(_parseNotionPage(page));
+        }
+
+        // Handle pagination if there are more than 100 tasks
+        String? nextCursor = responseData['next_cursor'];
+        bool hasMore = responseData['has_more'] as bool? ?? false;
+
+        while (hasMore && nextCursor != null) {
+          final nextBody = {
+            'page_size': 100,
+            'start_cursor': nextCursor,
+          };
+
+          final nextResponse = await http.post(
+            url,
+            headers: {
+              'Authorization': 'Bearer $apiKey',
+              'Notion-Version': _notionApiVersion,
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(nextBody),
+          );
+
+          if (nextResponse.statusCode == 200) {
+            final nextData = jsonDecode(nextResponse.body);
+            final nextResults = nextData['results'] as List;
+            for (final page in nextResults) {
+              tasks.add(_parseNotionPage(page));
+            }
+            nextCursor = nextData['next_cursor'];
+            hasMore = nextData['has_more'] as bool? ?? false;
+          } else {
+            print('Pagination failed: ${nextResponse.statusCode}');
+            break;
+          }
+        }
+
+        print('Fetched ${tasks.length} tasks from Notion');
+        return tasks;
+      } else {
+        print('Notion query error: ${response.statusCode} - ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Failed to query Notion tasks: $e');
+      return [];
+    }
+  }
+
+  /// Parse a Notion page into simplified task format
+  static Map<String, dynamic> _parseNotionPage(Map<String, dynamic> page) {
+    final props = page['properties'] as Map<String, dynamic>;
+
+    // Extract task name from Title property
+    String taskName = '';
+    if (props['Name'] != null && props['Name']['title'] != null) {
+      final titleArray = props['Name']['title'] as List;
+      if (titleArray.isNotEmpty) {
+        taskName = titleArray[0]['text']['content'] as String? ?? '';
+      }
+    }
+
+    // Extract completion status from Status property
+    bool isCompleted = false;
+    if (props['Status'] != null && props['Status']['status'] != null) {
+      final statusName = props['Status']['status']['name'] as String? ?? 'Not started';
+      isCompleted = statusName == 'Done';
+    }
+
+    // Extract folder from Select property
+    String folder = 'Inbox';
+    if (props['Folder'] != null && props['Folder']['select'] != null) {
+      final notionFolder = props['Folder']['select']['name'] as String? ?? 'Inbox';
+      // Validate folder exists locally - if not, default to Inbox
+      folder = notionFolder; // Validation will happen during sync
+    }
+
+    // Extract due date from Date property
+    String? dueDate;
+    if (props['Due Date'] != null && props['Due Date']['date'] != null) {
+      dueDate = props['Due Date']['date']['start'] as String?;
+    }
+
+    // Extract page ID
+    final pageId = page['id'] as String;
+
+    // Extract last edited time from Notion (this is our Notion-side timestamp)
+    final lastEdited = page['last_edited_time'] as String;
+
+    return {
+      'id': pageId,
+      'name': taskName,
+      'completed': isCompleted,
+      'folder': folder,
+      'dueDate': dueDate,
+      'lastModified': lastEdited, // Notion's timestamp
+    };
+  }
 }

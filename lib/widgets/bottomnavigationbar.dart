@@ -147,6 +147,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
         final isCompleted = task.length > 1 ? task[1] : false;
         final previousFolder = task.length > 3 && task[3] != null ? task[3] : null;
         final dateValue = task.length > 4 ? task[4] : null;
+        final notionPageId = task.length > 5 ? task[5] : null;
 
         newList[index] = [
           taskName,
@@ -154,6 +155,8 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
           targetFolder,
           previousFolder,
           dateValue,
+          notionPageId,
+          TaskTimestamp.now(), // Add timestamp
         ];
       }
     }
@@ -263,6 +266,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                         null, // previousFolder placeholder
                         selectedDate.value?.toIso8601String(), // date as ISO string
                         null, // notionPageId - will be filled when first synced
+                        TaskTimestamp.now(), // Add timestamp
                       ]);
                       toDoList.value = newList;
                       titleController.clear();
@@ -287,6 +291,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                     null, // previousFolder placeholder
                     selectedDate.value?.toIso8601String(), // date as ISO string
                     null, // notionPageId - will be filled when first synced
+                    TaskTimestamp.now(), // Add timestamp
                   ]);
                   toDoList.value = newList;
                   titleController.clear();

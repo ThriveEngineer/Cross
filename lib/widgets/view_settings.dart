@@ -165,7 +165,13 @@ class _ViewSettingsState extends State<ViewSettings> {
                                       ).then((selectedOption) async {
                                         if (selectedOption != null) {
                                           await SortPreferences.saveSortPreference(selectedOption);
-                                          Navigator.pop(context); // Close view settings sheet
+                                          // Allow menu to fully dismiss before closing the sheet
+                                          if (mounted) {
+                                            await Future.delayed(const Duration(milliseconds: 100));
+                                            if (mounted && context.mounted) {
+                                              Navigator.pop(context);
+                                            }
+                                          }
                                         }
                                       });
                                     },

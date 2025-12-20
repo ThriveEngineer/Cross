@@ -90,6 +90,9 @@ class _TodoTileState extends State<TodoTile> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Easter egg: Check if task contains "Stranger Things"
+    final bool isStrangerThings = widget.taskName.toLowerCase().contains('stranger things');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       child: FadeTransition(
@@ -116,39 +119,51 @@ class _TodoTileState extends State<TodoTile> with TickerProviderStateMixin {
             curve: Curves.easeOut,
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
             decoration: BoxDecoration(
-              color: widget.isSelected
-                ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
-                : Colors.transparent,
+              color: isStrangerThings
+                ? Colors.red.withValues(alpha: 0.3)
+                : (widget.isSelected
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                    : Colors.transparent),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: widget.taskCompleted ? Colors.black : Colors.transparent,
-                    border: Border.all(
-                      color: widget.isSelected
-                        ? Theme.of(context).primaryColor
-                        : (widget.taskCompleted ? Colors.black : Colors.grey),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: widget.taskCompleted
-                    ? ScaleTransition(
-                        scale: _checkboxAnimation,
-                        child: const Icon(
-                          Icons.check,
-                          size: 14,
-                          color: Colors.white,
+                // Easter egg: Show demo_head.png for Stranger Things tasks
+                isStrangerThings
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Image.asset(
+                        'lib/assets/demo_head.png',
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                  : AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: widget.taskCompleted ? Colors.black : Colors.transparent,
+                        border: Border.all(
+                          color: widget.isSelected
+                            ? Theme.of(context).primaryColor
+                            : (widget.taskCompleted ? Colors.black : Colors.grey),
+                          width: 2,
                         ),
-                      )
-                    : null,
-                ),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: widget.taskCompleted
+                        ? ScaleTransition(
+                            scale: _checkboxAnimation,
+                            child: const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          )
+                        : null,
+                    ),
                 SizedBox(width: 15,),
                 Expanded(
                   child: AnimatedDefaultTextStyle(

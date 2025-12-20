@@ -66,6 +66,7 @@ flutter:
   assets:
     - lib/assets/Notion-logo.svg.png
     - lib/assets/2023_Obsidian_logo.svg.png
+    - lib/assets/demo_head.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

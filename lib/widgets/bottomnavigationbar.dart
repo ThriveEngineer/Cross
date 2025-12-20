@@ -601,6 +601,30 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                       );
                     },
                   ),
+                  SizedBox(width: 16),
+                  // Timer FAB
+                  Fab(
+                    onSave: () {
+                      if (titleController.text.isNotEmpty) {
+                        final newList = List<List<dynamic>>.from(toDoList.value);
+                        newList.add([
+                          titleController.text,
+                          false,
+                          selectedFolder.value,
+                          null,
+                          selectedDate.value?.toIso8601String(),
+                          null,
+                          TaskTimestamp.now(),
+                        ]);
+                        toDoList.value = newList;
+                        titleController.clear();
+                        selectedFolder.value = 'Inbox';
+                        selectedDate.value = null;
+                        Navigator.pop(context);
+                      }
+                    },
+                    foldersList: foldersList,
+                  ),
                 ],
               );
             }

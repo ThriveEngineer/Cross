@@ -181,7 +181,7 @@ class _FabState extends State<Fab> {
           },
           child: inSelectionMode
             ? FloatingActionButton(
-                key: ValueKey('timer'),
+                key: ValueKey(widget.isOnFoldersPage ? 'folder' : 'timer'),
                 onPressed: () {
                   if (widget.isOnFoldersPage) {
                     if (widget.onCreateFolder != null) {
@@ -199,7 +199,11 @@ class _FabState extends State<Fab> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Icon(IconsaxPlusLinear.clock_1),
+                child: Icon(
+                  widget.isOnFoldersPage
+                      ? IconsaxPlusLinear.folder_add
+                      : IconsaxPlusLinear.clock_1,
+                ),
               )
             : FloatingActionButton(
                 key: ValueKey('add'),

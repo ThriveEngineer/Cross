@@ -111,6 +111,9 @@ final ValueNotifier<bool> selectionMode = ValueNotifier<bool>(false);
 // Holds the set of currently selected tasks.
 final ValueNotifier<Set<List<dynamic>>> selectedTasks = ValueNotifier<Set<List<dynamic>>>({});
 
+// Holds the set of currently selected folder indices.
+final ValueNotifier<Set<int>> selectedFolders = ValueNotifier<Set<int>>({});
+
 // Controls the current sort option for task lists.
 final ValueNotifier<SortOption> currentSortOption = ValueNotifier<SortOption>(SortOption.manual);
 

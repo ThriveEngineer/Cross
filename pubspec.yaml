@@ -39,6 +39,12 @@ dependencies:
   flutter_svg: ^2.2.3
   shared_preferences: ^2.3.4
   http: ^1.2.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons: 
+  ios: true
+  android: true
+  image_path: "lib/assets/cross.png"
 
 dev_dependencies:
   flutter_test:

@@ -304,24 +304,40 @@ class _FabState extends State<Fab> {
                                                     _showFolderSelector(
                                                       context,
                                                     ),
-                                                child: Chip(
-                                                  side: BorderSide(
-                                                    color: Color.fromARGB(
-                                                      255,
-                                                      179,
-                                                      179,
-                                                      179,
-                                                    ),
-                                                  ),
-                                                  label: Row(
-                                                    children: [
-                                                      Icon(
-                                                        IconsaxPlusLinear
-                                                            .directbox_notif,
+                                                child: SizedBox(
+                                                  height: 33,
+                                                  child: Chip(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          horizontal: 14,
+                                                        ),
+                                                    labelPadding:
+                                                        EdgeInsets.zero,
+                                                    side: BorderSide(
+                                                      width: 0.5,
+                                                      color: Color.fromARGB(
+                                                        255,
+                                                        179,
+                                                        179,
+                                                        179,
                                                       ),
-                                                      SizedBox(width: 10),
-                                                      Text(folder),
-                                                    ],
+                                                    ),
+                                                    label: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Icon(
+                                                          IconsaxPlusLinear
+                                                              .directbox_notif,
+                                                          size: 22,
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        Text(folder),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -351,32 +367,46 @@ class _FabState extends State<Fab> {
                                               child: GestureDetector(
                                                 onTap: () =>
                                                     _showDatePicker(context),
-                                                child: Chip(
-                                                  side: BorderSide(
-                                                    color: Color.fromARGB(
-                                                      255,
-                                                      179,
-                                                      179,
-                                                      179,
+                                                child: SizedBox(
+                                                  width: 112,
+                                                  height: 36,
+                                                  child: Chip(
+                                                    padding: EdgeInsets.zero,
+                                                    labelPadding:
+                                                        EdgeInsets.zero,
+                                                    side: BorderSide(
+                                                      width: 0.5,
+                                                      color: Color.fromARGB(
+                                                        255,
+                                                        179,
+                                                        179,
+                                                        179,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  label: Row(
-                                                    children: [
-                                                      Icon(
-                                                        IconsaxPlusLinear
-                                                            .calendar,
-                                                      ),
-                                                      SizedBox(width: 10),
-                                                      AnimatedSwitcher(
-                                                        duration: Duration(
-                                                          milliseconds: 200,
+                                                    label: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Icon(
+                                                          IconsaxPlusLinear
+                                                              .calendar,
+                                                          size: 22,
                                                         ),
-                                                        child: Text(
-                                                          _getDateLabel(date),
-                                                          key: ValueKey(date),
+                                                        SizedBox(width: 10),
+                                                        AnimatedSwitcher(
+                                                          duration: Duration(
+                                                            milliseconds: 200,
+                                                          ),
+                                                          child: Text(
+                                                            _getDateLabel(date),
+                                                            key: ValueKey(date),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -397,7 +427,7 @@ class _FabState extends State<Fab> {
                     }
                   },
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     widget.isOnFoldersPage

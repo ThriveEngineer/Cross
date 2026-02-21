@@ -29,7 +29,6 @@ class Fab extends StatefulWidget {
 }
 
 class _FabState extends State<Fab> {
-
   void _showFolderSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -116,7 +115,20 @@ class _FabState extends State<Fab> {
     } else if (dateOnly == tomorrow) {
       return "Tomorrow";
     } else {
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       return "${months[date.month - 1]} ${date.day}";
     }
   }
@@ -134,8 +146,8 @@ class _FabState extends State<Fab> {
       curve: Curves.easeOut,
       decoration: BoxDecoration(
         color: isSelected
-          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-          : Colors.transparent,
+            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -180,178 +192,219 @@ class _FabState extends State<Fab> {
             );
           },
           child: inSelectionMode
-            ? FloatingActionButton(
-                key: ValueKey(widget.isOnFoldersPage ? 'folder' : 'timer'),
-                onPressed: () {
-                  if (widget.isOnFoldersPage) {
-                    if (widget.onCreateFolder != null) {
-                      widget.onCreateFolder!();
+              ? FloatingActionButton(
+                  key: ValueKey(widget.isOnFoldersPage ? 'folder' : 'timer'),
+                  onPressed: () {
+                    if (widget.isOnFoldersPage) {
+                      if (widget.onCreateFolder != null) {
+                        widget.onCreateFolder!();
+                      }
+                    } else {
+                      showBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return _FocusTimerSheet();
+                        },
+                      );
                     }
-                  } else {
-                    showBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return _FocusTimerSheet();
-                      },
-                    );
-                  }
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Icon(
-                  widget.isOnFoldersPage
-                      ? IconsaxPlusLinear.folder_add
-                      : IconsaxPlusLinear.clock_1,
-                ),
-              )
-            : FloatingActionButton(
-                key: ValueKey('add'),
-                onPressed: () {
-                  if (widget.isOnFoldersPage) {
-                    if (widget.onCreateFolder != null) {
-                      widget.onCreateFolder!();
-                    }
-                  } else {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      builder: (context) {
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                      child: SizedBox(
-                        height: 175,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 17,
-                                top: 10,
-                                right: 17,
-                                bottom: 10,
-                              ),
-                              child: TextField(
-                                autofocus: true,
-                                controller: titleController,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Task title',
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Icon(
+                    widget.isOnFoldersPage
+                        ? IconsaxPlusLinear.folder_add
+                        : IconsaxPlusLinear.clock_1,
+                  ),
+                )
+              : FloatingActionButton(
+                  key: ValueKey('add'),
+                  onPressed: () {
+                    if (widget.isOnFoldersPage) {
+                      if (widget.onCreateFolder != null) {
+                        widget.onCreateFolder!();
+                      }
+                    } else {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (context) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 22, top: 30),
-                              child: Row(
+                            child: SizedBox(
+                              height: 175,
+                              child: Column(
                                 children: [
-                                  ValueListenableBuilder<String>(
-                                    valueListenable: selectedFolder,
-                                    builder: (context, folder, _) {
-                                      return TweenAnimationBuilder<double>(
-                                        tween: Tween(begin: 1.0, end: 1.0),
-                                        duration: Duration(milliseconds: 100),
-                                        builder: (context, scale, child) {
-                                          return Transform.scale(
-                                            scale: scale,
-                                            child: child,
-                                          );
-                                        },
-                                        child: GestureDetector(
-                                          onTapDown: (_) {},
-                                          onTapUp: (_) {},
-                                          onTap: () =>
-                                              _showFolderSelector(context),
-                                          child: Chip(
-                                          side: BorderSide(
-                                            color: Color.fromARGB(
-                                              255,
-                                              179,
-                                              179,
-                                              179,
-                                            ),
-                                          ),
-                                          label: Row(
-                                            children: [
-                                              Icon(
-                                                IconsaxPlusLinear
-                                                    .directbox_notif,
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 17,
+                                      top: 30,
+                                      right: 17,
+                                      bottom: 10,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            autofocus: true,
+                                            controller: titleController,
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: 'Task title',
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 16,
                                               ),
-                                              SizedBox(width: 10),
-                                              Text(folder),
-                                            ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      );
-                                    },
+
+                                        SizedBox(width: 12),
+                                        TickButton(onPressed: widget.onSave),
+                                      ],
+                                    ),
                                   ),
-                                  SizedBox(width: 12),
-                                  ValueListenableBuilder<DateTime?>(
-                                    valueListenable: selectedDate,
-                                    builder: (context, date, _) {
-                                      return TweenAnimationBuilder<double>(
-                                        tween: Tween(begin: 1.0, end: 1.0),
-                                        duration: Duration(milliseconds: 100),
-                                        builder: (context, scale, child) {
-                                          return Transform.scale(
-                                            scale: scale,
-                                            child: child,
-                                          );
-                                        },
-                                        child: GestureDetector(
-                                          onTap: () => _showDatePicker(context),
-                                          child: Chip(
-                                            side: BorderSide(
-                                              color: Color.fromARGB(255, 179, 179, 179),
-                                            ),
-                                            label: Row(
-                                              children: [
-                                                Icon(IconsaxPlusLinear.calendar),
-                                                SizedBox(width: 10),
-                                                AnimatedSwitcher(
-                                                  duration: Duration(milliseconds: 200),
-                                                  child: Text(
-                                                    _getDateLabel(date),
-                                                    key: ValueKey(date),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 22,
+                                      top: 5,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        ValueListenableBuilder<String>(
+                                          valueListenable: selectedFolder,
+                                          builder: (context, folder, _) {
+                                            return TweenAnimationBuilder<
+                                              double
+                                            >(
+                                              tween: Tween(
+                                                begin: 1.0,
+                                                end: 1.0,
+                                              ),
+                                              duration: Duration(
+                                                milliseconds: 100,
+                                              ),
+                                              builder: (context, scale, child) {
+                                                return Transform.scale(
+                                                  scale: scale,
+                                                  child: child,
+                                                );
+                                              },
+                                              child: GestureDetector(
+                                                onTapDown: (_) {},
+                                                onTapUp: (_) {},
+                                                onTap: () =>
+                                                    _showFolderSelector(
+                                                      context,
+                                                    ),
+                                                child: Chip(
+                                                  side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                      255,
+                                                      179,
+                                                      179,
+                                                      179,
+                                                    ),
+                                                  ),
+                                                  label: Row(
+                                                    children: [
+                                                      Icon(
+                                                        IconsaxPlusLinear
+                                                            .directbox_notif,
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      Text(folder),
+                                                    ],
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
+                                        SizedBox(width: 12),
+                                        ValueListenableBuilder<DateTime?>(
+                                          valueListenable: selectedDate,
+                                          builder: (context, date, _) {
+                                            return TweenAnimationBuilder<
+                                              double
+                                            >(
+                                              tween: Tween(
+                                                begin: 1.0,
+                                                end: 1.0,
+                                              ),
+                                              duration: Duration(
+                                                milliseconds: 100,
+                                              ),
+                                              builder: (context, scale, child) {
+                                                return Transform.scale(
+                                                  scale: scale,
+                                                  child: child,
+                                                );
+                                              },
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    _showDatePicker(context),
+                                                child: Chip(
+                                                  side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                      255,
+                                                      179,
+                                                      179,
+                                                      179,
+                                                    ),
+                                                  ),
+                                                  label: Row(
+                                                    children: [
+                                                      Icon(
+                                                        IconsaxPlusLinear
+                                                            .calendar,
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      AnimatedSwitcher(
+                                                        duration: Duration(
+                                                          milliseconds: 200,
+                                                        ),
+                                                        child: Text(
+                                                          _getDateLabel(date),
+                                                          key: ValueKey(date),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        // SizedBox(width: 12),
+                                        // TickButton(onPressed: widget.onSave),
+                                      ],
+                                    ),
                                   ),
-                                  SizedBox(width: 12),
-                                  TickButton(onPressed: widget.onSave),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
+                          );
+                        },
+                      );
+                    }
                   },
-                );
-              }
-            },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Icon(
+                    widget.isOnFoldersPage
+                        ? IconsaxPlusLinear.folder_add
+                        : IconsaxPlusLinear.add,
+                  ),
                 ),
-                child: Icon(
-                  widget.isOnFoldersPage
-                      ? IconsaxPlusLinear.folder_add
-                      : IconsaxPlusLinear.add,
-                ),
-              ),
         );
       },
     );
@@ -365,7 +418,8 @@ class _FocusTimerSheet extends StatefulWidget {
   State<_FocusTimerSheet> createState() => _FocusTimerSheetState();
 }
 
-class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerProviderStateMixin {
+class _FocusTimerSheetState extends State<_FocusTimerSheet>
+    with SingleTickerProviderStateMixin {
   int totalSeconds = 45 * 60;
   bool isTimerRunning = false;
   late int remainingSeconds;
@@ -389,19 +443,20 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Initialize animation only once
     if (!_animationInitialized) {
-      animation = Tween<double>(
-        begin: 242,
-        end: MediaQuery.of(context).size.height,
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOut,
-      ))..addListener(() {
-        setState(() {});
-      });
-      
+      animation =
+          Tween<double>(
+              begin: 242,
+              end: MediaQuery.of(context).size.height,
+            ).animate(
+              CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+            )
+            ..addListener(() {
+              setState(() {});
+            });
+
       _animationInitialized = true;
     }
   }
@@ -433,25 +488,24 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
         stopTimer();
       }
     });
-    
+
     // Wait for animation to complete before going fullscreen
     Future.delayed(Duration(milliseconds: 200), () {
       if (mounted && isTimerRunning) {
         Navigator.of(context).push(
           PageRouteBuilder(
             opaque: true,
-            pageBuilder: (context, animation, secondaryAnimation) => _FullscreenTimer(
-              remainingSeconds: remainingSeconds,
-              onStop: stopTimer,
-              onClose: closeTimer,
-              formatTime: formatTime,
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                _FullscreenTimer(
+                  remainingSeconds: remainingSeconds,
+                  onStop: stopTimer,
+                  onClose: closeTimer,
+                  formatTime: formatTime,
+                ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
             transitionDuration: Duration(milliseconds: 200),
           ),
         );
@@ -461,30 +515,30 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
 
   void stopTimer() {
     timer?.cancel();
-    
+
     // Close fullscreen overlay if open
     if (isTimerRunning && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
-    
+
     // Change state first, then animate
     setState(() {
       isTimerRunning = false;
       remainingSeconds = totalSeconds;
     });
-    
+
     // Reset animation controller
     controller.reset();
   }
-  
+
   void closeTimer() {
     timer?.cancel();
-    
+
     // Close fullscreen overlay
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
-    
+
     // Close the bottom sheet
     Navigator.of(context).pop();
   }
@@ -518,7 +572,7 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
     } else {
       // Timer running view - animated expanding box
       final progress = _animationInitialized ? controller.value : 0.0;
-      
+
       return Container(
         width: _animationInitialized ? animation.value : 365,
         height: _animationInitialized ? animation.value : 242,
@@ -526,9 +580,7 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
           color: ColorScheme.of(context).primary,
           borderRadius: BorderRadius.circular(24 * (1 - progress)),
         ),
-        child: SafeArea(
-          child: _buildTimerView(context),
-        ),
+        child: SafeArea(child: _buildTimerView(context)),
       );
     }
   }
@@ -579,10 +631,7 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
           ),
           onPressed: startTimer,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 9,
-              horizontal: 75,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 75),
             child: Text("Start Focus Session"),
           ),
         ),
@@ -635,10 +684,7 @@ class _FocusTimerSheetState extends State<_FocusTimerSheet> with SingleTickerPro
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            textStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
+            textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
           ),
           onPressed: stopTimer,
@@ -678,7 +724,7 @@ class _FullscreenTimerState extends State<_FullscreenTimer> {
   void initState() {
     super.initState();
     _remainingSeconds = widget.remainingSeconds;
-    
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         setState(() {
@@ -744,10 +790,7 @@ class _FullscreenTimerState extends State<_FullscreenTimer> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                textStyle: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                ),
+                textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 80),
               ),
               onPressed: widget.onStop,

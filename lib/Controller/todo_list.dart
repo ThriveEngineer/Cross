@@ -117,6 +117,29 @@ final ValueNotifier<Set<int>> selectedFolders = ValueNotifier<Set<int>>({});
 // Controls the current sort option for task lists.
 final ValueNotifier<SortOption> currentSortOption = ValueNotifier<SortOption>(SortOption.manual);
 
+// Registry mapping codePoint -> const IconData for tree-shake-safe icon persistence
+final Map<int, IconData> _iconRegistry = {
+  IconsaxPlusLinear.directbox_notif.codePoint: IconsaxPlusLinear.directbox_notif,
+  IconsaxPlusLinear.heart.codePoint: IconsaxPlusLinear.heart,
+  IconsaxPlusLinear.tick_square.codePoint: IconsaxPlusLinear.tick_square,
+  IconsaxPlusLinear.folder.codePoint: IconsaxPlusLinear.folder,
+  IconsaxPlusLinear.folder_favorite.codePoint: IconsaxPlusLinear.folder_favorite,
+  IconsaxPlusLinear.archive.codePoint: IconsaxPlusLinear.archive,
+  IconsaxPlusLinear.task_square.codePoint: IconsaxPlusLinear.task_square,
+  IconsaxPlusLinear.note.codePoint: IconsaxPlusLinear.note,
+  IconsaxPlusLinear.briefcase.codePoint: IconsaxPlusLinear.briefcase,
+  IconsaxPlusLinear.home.codePoint: IconsaxPlusLinear.home,
+  IconsaxPlusLinear.shopping_cart.codePoint: IconsaxPlusLinear.shopping_cart,
+  IconsaxPlusLinear.star.codePoint: IconsaxPlusLinear.star,
+  IconsaxPlusLinear.book.codePoint: IconsaxPlusLinear.book,
+  IconsaxPlusLinear.trend_up.codePoint: IconsaxPlusLinear.trend_up,
+};
+
+/// Look up a const IconData by its codePoint, falling back to folder icon.
+IconData iconFromCodePoint(int codePoint) {
+  return _iconRegistry[codePoint] ?? IconsaxPlusLinear.folder;
+}
+
 // Holds all folders (default and user-created)
 final ValueNotifier<List<Map<String, dynamic>>> foldersList =
     ValueNotifier<List<Map<String, dynamic>>>([
@@ -410,11 +433,7 @@ class DataPersistence {
 
         // Reconstruct IconData from stored values
         final folders = decoded.map((folder) {
-          final iconData = IconData(
-            folder['iconCodePoint'] as int,
-            fontFamily: folder['iconFontFamily'] as String?,
-            fontPackage: folder['iconFontPackage'] as String?,
-          );
+          final iconData = iconFromCodePoint(folder['iconCodePoint'] as int);
 
           return {
             'name': folder['name'],

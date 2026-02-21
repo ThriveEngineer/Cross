@@ -193,6 +193,7 @@ class _FabState extends State<Fab> {
           },
           child: inSelectionMode
               ? FloatingActionButton(
+                  elevation: 0,
                   key: ValueKey(widget.isOnFoldersPage ? 'folder' : 'timer'),
                   onPressed: () {
                     if (widget.isOnFoldersPage) {
@@ -209,7 +210,7 @@ class _FabState extends State<Fab> {
                     }
                   },
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     widget.isOnFoldersPage
@@ -218,6 +219,7 @@ class _FabState extends State<Fab> {
                   ),
                 )
               : FloatingActionButton(
+                  elevation: 0,
                   key: ValueKey('add'),
                   onPressed: () {
                     if (widget.isOnFoldersPage) {

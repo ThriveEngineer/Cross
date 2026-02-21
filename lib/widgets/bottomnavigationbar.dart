@@ -12,7 +12,8 @@ class BottomnavigationbarWidget extends StatefulWidget {
   const BottomnavigationbarWidget({super.key});
 
   @override
-  State<BottomnavigationbarWidget> createState() => _BottomnavigationbarWidgetState();
+  State<BottomnavigationbarWidget> createState() =>
+      _BottomnavigationbarWidgetState();
 }
 
 class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
@@ -35,11 +36,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
     IconsaxPlusLinear.trend_up,
   ];
 
-  final List<Widget> _tabs = [
-    TodayPage(),
-    UpcomingPage(),
-    FolderPage(),
-  ];
+  final List<Widget> _tabs = [TodayPage(), UpcomingPage(), FolderPage()];
 
   void _showFolderMoveDialog(BuildContext context) {
     showModalBottomSheet(
@@ -56,7 +53,10 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 child: Text(
                   'Move ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''} to folder',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -87,7 +87,10 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                         child: AnimatedContainer(
                           duration: Duration(milliseconds: 200),
                           curve: Curves.easeOut,
-                          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -123,32 +126,31 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
           builder: (context, value, child) {
             return Transform.scale(
               scale: 0.8 + (0.2 * value),
-              child: Opacity(
-                opacity: value,
-                child: child,
-              ),
+              child: Opacity(opacity: value, child: child),
             );
           },
           child: AlertDialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-          title: Text('Delete Tasks'),
-          content: Text('Are you sure you want to delete ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''}?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+            title: Text('Delete Tasks'),
+            content: Text(
+              'Are you sure you want to delete ${selectedTasks.value.length} task${selectedTasks.value.length > 1 ? 's' : ''}?',
             ),
-            TextButton(
-              onPressed: () {
-                _deleteSelectedTasks();
-                Navigator.pop(context);
-              },
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _deleteSelectedTasks();
+                  Navigator.pop(context);
+                },
+                child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -162,7 +164,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
       if (index != -1) {
         final taskName = task[0];
         final isCompleted = task.length > 1 ? task[1] : false;
-        final previousFolder = task.length > 3 && task[3] != null ? task[3] : null;
+        final previousFolder = task.length > 3 && task[3] != null
+            ? task[3]
+            : null;
         final dateValue = task.length > 4 ? task[4] : null;
         final notionPageId = task.length > 5 ? task[5] : null;
 
@@ -211,62 +215,46 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: SizedBox(
-                height: 175,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 17,
-                        top: 10,
-                        right: 17,
-                        bottom: 10,
-                      ),
-                      child: TextField(
-                        autofocus: true,
-                        controller: _folderController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Folder name',
-                          hintStyle: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 16,
-                          ),
+                height: 100,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 17),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () =>
+                              _showIconSelector(context, setModalState),
+                          child: Icon(_selectedIcon, size: 28),
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 22, top: 30),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _showIconSelector(context, setModalState),
-                            child: Chip(
-                              side: BorderSide(
-                                color: Color.fromARGB(255, 179, 179, 179),
-                              ),
-                              label: Row(
-                                children: [
-                                  Icon(_selectedIcon),
-                                  SizedBox(width: 10),
-                                  Text('Icon'),
-                                ],
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            autofocus: true,
+                            controller: _folderController,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Folder name',
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
-                          TickButton(
-                            onPressed: () {
-                              if (_folderController.text.trim().isNotEmpty) {
-                                _createFolder(_folderController.text.trim());
-                                Navigator.pop(context);
-                                _folderController.clear();
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: 12),
+                        TickButton(
+                          onPressed: () {
+                            if (_folderController.text.trim().isNotEmpty) {
+                              _createFolder(_folderController.text.trim());
+                              Navigator.pop(context);
+                              _folderController.clear();
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -317,7 +305,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                       curve: Curves.easeOut,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                            ? Theme.of(
+                                context,
+                              ).primaryColor.withValues(alpha: 0.1)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
@@ -375,7 +365,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
       builder: (context) {
         return AlertDialog(
           title: Text('Delete Folders'),
-          content: Text('Are you sure you want to delete ${selectedFolders.value.length} folder${selectedFolders.value.length > 1 ? 's' : ''}? Tasks in these folders will be moved to Inbox.'),
+          content: Text(
+            'Are you sure you want to delete ${selectedFolders.value.length} folder${selectedFolders.value.length > 1 ? 's' : ''}? Tasks in these folders will be moved to Inbox.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -399,7 +391,8 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
     final foldersToDelete = <String>[];
 
     // Collect folder names to delete (in reverse order to maintain indices)
-    final sortedIndices = selectedFolders.value.toList()..sort((a, b) => b.compareTo(a));
+    final sortedIndices = selectedFolders.value.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     for (final index in sortedIndices) {
       if (index < newList.length) {
@@ -457,7 +450,10 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                       return AnimatedContainer(
                         duration: Duration(milliseconds: 300),
                         curve: Curves.easeOutBack,
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
@@ -478,17 +474,19 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                               duration: Duration(milliseconds: 200),
                               curve: Curves.easeOutBack,
                               child: IconButton(
-                                onPressed: selected.isEmpty ? null : () {
-                                  _showDeleteFoldersConfirmation(context);
-                                },
+                                onPressed: selected.isEmpty
+                                    ? null
+                                    : () {
+                                        _showDeleteFoldersConfirmation(context);
+                                      },
                                 icon: AnimatedSwitcher(
                                   duration: Duration(milliseconds: 200),
                                   child: Icon(
                                     IconsaxPlusLinear.trash,
                                     key: ValueKey(selected.isEmpty),
                                     color: selected.isEmpty
-                                      ? Colors.grey.shade400
-                                      : Colors.red,
+                                        ? Colors.grey.shade400
+                                        : Colors.red,
                                   ),
                                 ),
                               ),
@@ -503,7 +501,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                   Fab(
                     onSave: () {
                       if (titleController.text.isNotEmpty) {
-                        final newList = List<List<dynamic>>.from(toDoList.value);
+                        final newList = List<List<dynamic>>.from(
+                          toDoList.value,
+                        );
                         newList.add([
                           titleController.text,
                           false,
@@ -538,7 +538,10 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                       return AnimatedContainer(
                         duration: Duration(milliseconds: 300),
                         curve: Curves.easeOutBack,
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
@@ -559,17 +562,19 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                               duration: Duration(milliseconds: 200),
                               curve: Curves.easeOutBack,
                               child: IconButton(
-                                onPressed: selected.isEmpty ? null : () {
-                                  _showFolderMoveDialog(context);
-                                },
+                                onPressed: selected.isEmpty
+                                    ? null
+                                    : () {
+                                        _showFolderMoveDialog(context);
+                                      },
                                 icon: AnimatedSwitcher(
                                   duration: Duration(milliseconds: 200),
                                   child: Icon(
                                     IconsaxPlusLinear.folder_cross,
                                     key: ValueKey(selected.isEmpty),
                                     color: selected.isEmpty
-                                      ? Colors.grey.shade400
-                                      : Theme.of(context).primaryColor,
+                                        ? Colors.grey.shade400
+                                        : Theme.of(context).primaryColor,
                                   ),
                                 ),
                               ),
@@ -581,17 +586,19 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                               duration: Duration(milliseconds: 200),
                               curve: Curves.easeOutBack,
                               child: IconButton(
-                                onPressed: selected.isEmpty ? null : () {
-                                  _showDeleteConfirmation(context);
-                                },
+                                onPressed: selected.isEmpty
+                                    ? null
+                                    : () {
+                                        _showDeleteConfirmation(context);
+                                      },
                                 icon: AnimatedSwitcher(
                                   duration: Duration(milliseconds: 200),
                                   child: Icon(
                                     IconsaxPlusLinear.trash,
                                     key: ValueKey(selected.isEmpty),
                                     color: selected.isEmpty
-                                      ? Colors.grey.shade400
-                                      : Colors.red,
+                                        ? Colors.grey.shade400
+                                        : Colors.red,
                                   ),
                                 ),
                               ),
@@ -606,7 +613,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                   Fab(
                     onSave: () {
                       if (titleController.text.isNotEmpty) {
-                        final newList = List<List<dynamic>>.from(toDoList.value);
+                        final newList = List<List<dynamic>>.from(
+                          toDoList.value,
+                        );
                         newList.add([
                           titleController.text,
                           false,
@@ -658,25 +667,52 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
       ),
       appBar: AppbarWidget(),
       body: _tabs[_currentIndex],
-      
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Color.fromARGB(255, 202, 202, 202), width: 0.5),
-          ),
-        ),
-        child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (int index) {
+
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(height: 0.5, color: Color(0xFFCACACA)),
+          NavigationBar(
+            height: 65,
+            selectedIndex: _currentIndex,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            indicatorColor: Colors.black,
+            onDestinationSelected: (int index) {
               setState(() {
                 _currentIndex = index;
               });
             },
-            items: const [
-              BottomNavigationBarItem(icon: Icon(IconsaxPlusLinear.calendar_1, size: 28,), label: "", activeIcon: Icon(IconsaxPlusBold.calendar_1, size: 30,)),
-              BottomNavigationBarItem(icon: Icon(IconsaxPlusLinear.calendar, size: 28,), label: "", activeIcon: Icon(IconsaxPlusBold.calendar, size: 30,)),
-              BottomNavigationBarItem(icon: Icon(IconsaxPlusLinear.folder, size: 28,), label: "", activeIcon: Icon(IconsaxPlusBold.folder, size: 30,)),
-            ]),
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(IconsaxPlusLinear.calendar_1, size: 28),
+                selectedIcon: Icon(
+                  IconsaxPlusBold.calendar_1,
+                  size: 28,
+                  color: Colors.white,
+                ),
+                label: '',
+              ),
+              NavigationDestination(
+                icon: Icon(IconsaxPlusLinear.calendar, size: 28),
+                selectedIcon: Icon(
+                  IconsaxPlusBold.calendar,
+                  size: 28,
+                  color: Colors.white,
+                ),
+                label: '',
+              ),
+              NavigationDestination(
+                icon: Icon(IconsaxPlusLinear.folder, size: 28),
+                selectedIcon: Icon(
+                  IconsaxPlusBold.folder,
+                  size: 28,
+                  color: Colors.white,
+                ),
+                label: '',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

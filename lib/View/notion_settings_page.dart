@@ -67,13 +67,20 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
         });
         // Update auto-sync connection state
         NotionAutoSyncService.instance.updateConnectionState(true);
-        _showMessage('Successfully connected to Notion! Auto-sync is now enabled.');
+        _showMessage(
+          'Successfully connected to Notion! Auto-sync is now enabled.',
+        );
       } else {
         await NotionService.disconnect();
         _showMessage('Failed to connect. Please check your credentials.');
       }
     } catch (e) {
-      _showMessage('Error: $e');
+      await NotionService.disconnect();
+      String message = e.toString();
+      if (message.startsWith('Exception: ')) {
+        message = message.substring(11); // Remove "Exception: " prefix
+      }
+      _showMessage('Error: $message', duration: Duration(seconds: 5));
     } finally {
       setState(() {
         _isLoading = false;
@@ -147,7 +154,11 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
 
       _showMessage(message.trim(), duration: Duration(seconds: 6));
     } catch (e) {
-      _showMessage('Sync failed: $e', duration: Duration(seconds: 6));
+      String message = e.toString();
+      if (message.startsWith('Exception: ')) {
+        message = message.substring(11); // Remove "Exception: " prefix
+      }
+      _showMessage('Sync failed: $message', duration: Duration(seconds: 6));
     } finally {
       setState(() {
         _isSyncing = false;
@@ -155,7 +166,10 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
     }
   }
 
-  void _showMessage(String message, {Duration duration = const Duration(seconds: 3)}) {
+  void _showMessage(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -206,13 +220,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         Text(
           value,
           style: TextStyle(
@@ -327,9 +335,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     SizedBox(width: 13),
                     Text(
                       _isConnected ? 'Connected' : 'Not connected',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -364,7 +370,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                       ),
                       SizedBox(height: 12),
                       ValueListenableBuilder<SyncState>(
-                        valueListenable: NotionAutoSyncService.instance.syncState,
+                        valueListenable:
+                            NotionAutoSyncService.instance.syncState,
                         builder: (context, state, _) {
                           return _buildInfoRow(
                             'Status',
@@ -375,7 +382,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                       ),
                       SizedBox(height: 8),
                       ValueListenableBuilder<String?>(
-                        valueListenable: NotionAutoSyncService.instance.lastSyncTime,
+                        valueListenable:
+                            NotionAutoSyncService.instance.lastSyncTime,
                         builder: (context, lastSync, _) {
                           if (lastSync != null) {
                             try {
@@ -391,7 +399,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                       ),
                       SizedBox(height: 8),
                       ValueListenableBuilder<int>(
-                        valueListenable: NotionAutoSyncService.instance.syncedTasksCount,
+                        valueListenable:
+                            NotionAutoSyncService.instance.syncedTasksCount,
                         builder: (context, count, _) {
                           return _buildInfoRow('Tasks synced', '$count');
                         },
@@ -427,7 +436,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                       ),
                       SizedBox(height: 12),
                       ValueListenableBuilder<bool>(
-                        valueListenable: NotionAutoSyncService.instance.pollingEnabled,
+                        valueListenable:
+                            NotionAutoSyncService.instance.pollingEnabled,
                         builder: (context, enabled, _) {
                           return SwitchListTile(
                             contentPadding: EdgeInsets.zero,
@@ -435,7 +445,9 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                             subtitle: Text('Check for changes every 5 minutes'),
                             value: enabled,
                             onChanged: (value) {
-                              NotionAutoSyncService.instance.setPollingEnabled(value);
+                              NotionAutoSyncService.instance.setPollingEnabled(
+                                value,
+                              );
                             },
                           );
                         },
@@ -561,7 +573,9 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                                   ),
                                 )
                               : Icon(IconsaxPlusLinear.refresh),
-                          label: Text(_isSyncing ? 'Syncing...' : 'Force Sync Now'),
+                          label: Text(
+                            _isSyncing ? 'Syncing...' : 'Force Sync Now',
+                          ),
                         ),
                       ),
                       SizedBox(height: 12),
@@ -594,10 +608,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                   _isConnected
                       ? 'Bi-directional sync is enabled. Local changes sync to Notion within 3 seconds. Changes from Notion are fetched every 5 minutes or when you pull to refresh.'
                       : 'Your tasks will be synced to your Notion database with their folder and due date information.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
               ),

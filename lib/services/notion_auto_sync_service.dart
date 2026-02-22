@@ -6,9 +6,9 @@ import '../Controller/todo_list.dart';
 
 /// Sync direction enum for tracking sync flow
 enum SyncDirection {
-  none,          // No sync happening
-  toNotion,      // Local → Notion (existing flow)
-  fromNotion,    // Notion → Local (new flow)
+  none, // No sync happening
+  toNotion, // Local → Notion (existing flow)
+  fromNotion, // Notion → Local (new flow)
   bidirectional, // Both directions (full sync)
 }
 
@@ -22,7 +22,9 @@ class NotionAutoSyncService {
   final ValueNotifier<SyncState> syncState = ValueNotifier(SyncState.disabled);
   final ValueNotifier<String?> lastSyncTime = ValueNotifier(null);
   final ValueNotifier<int> syncedTasksCount = ValueNotifier(0);
-  final ValueNotifier<SyncDirection> syncDirection = ValueNotifier(SyncDirection.none);
+  final ValueNotifier<SyncDirection> syncDirection = ValueNotifier(
+    SyncDirection.none,
+  );
 
   // Debounce timer
   Timer? _debounceTimer;
@@ -173,10 +175,15 @@ class NotionAutoSyncService {
 
       if (errors > 0) {
         print('Sync completed with errors: $errors failed');
-        _handleSyncError('Partial sync: $errors operations failed', retry: true);
+        _handleSyncError(
+          'Partial sync: $errors operations failed',
+          retry: true,
+        );
       } else {
         print('Bidirectional sync successful:');
-        print('  Local: $localCreates created, $localUpdates updated, $localDeletes deleted');
+        print(
+          '  Local: $localCreates created, $localUpdates updated, $localDeletes deleted',
+        );
         print('  Notion: $notionCreates created, $notionUpdates updated');
         _handleSyncSuccess(notionCreates, notionUpdates);
       }
@@ -205,8 +212,12 @@ class NotionAutoSyncService {
 
     if (retry && _consecutiveFailures <= _maxRetries) {
       // Retry with exponential backoff
-      final retryDelay = _consecutiveFailures == 1 ? _retryDelay1 : _retryDelay2;
-      print('Retrying sync in ${retryDelay.inSeconds}s (attempt $_consecutiveFailures/$_maxRetries)');
+      final retryDelay = _consecutiveFailures == 1
+          ? _retryDelay1
+          : _retryDelay2;
+      print(
+        'Retrying sync in ${retryDelay.inSeconds}s (attempt $_consecutiveFailures/$_maxRetries)',
+      );
 
       syncState.value = SyncState.syncing;
       Future.delayed(retryDelay, () {
@@ -249,11 +260,14 @@ class NotionAutoSyncService {
     }
 
     // 3. Categorize tasks
-    final toUpdateInNotion = <List<dynamic>>[];  // Local newer, update Notion
-    final toUpdateLocally = <Map<String, dynamic>>[];  // Notion newer, update local
-    final toCreateInNotion = List<List<dynamic>>.from(localWithoutPageId);  // No page ID, create in Notion
-    final toCreateLocally = <Map<String, dynamic>>[];  // In Notion but not local
-    final toDeleteLocally = <String>[];  // Page IDs to delete locally
+    final toUpdateInNotion = <List<dynamic>>[]; // Local newer, update Notion
+    final toUpdateLocally =
+        <Map<String, dynamic>>[]; // Notion newer, update local
+    final toCreateInNotion = List<List<dynamic>>.from(
+      localWithoutPageId,
+    ); // No page ID, create in Notion
+    final toCreateLocally = <Map<String, dynamic>>[]; // In Notion but not local
+    final toDeleteLocally = <String>[]; // Page IDs to delete locally
 
     // 4. Compare tasks that exist in both places
     for (final entry in localByPageId.entries) {
@@ -269,7 +283,10 @@ class NotionAutoSyncService {
         final localTimestamp = TaskTimestamp.getTimestamp(localTask);
         final notionTimestamp = notionTask['lastModified'] as String?;
 
-        final comparison = TaskTimestamp.compare(localTimestamp, notionTimestamp);
+        final comparison = TaskTimestamp.compare(
+          localTimestamp,
+          notionTimestamp,
+        );
 
         if (comparison > 0) {
           // Local is newer - update Notion
@@ -288,12 +305,14 @@ class NotionAutoSyncService {
     // 5. Remaining Notion tasks don't exist locally - create them locally
     toCreateLocally.addAll(notionByPageId.values);
 
-    print('Sync plan: '
-        'Create in Notion: ${toCreateInNotion.length}, '
-        'Update in Notion: ${toUpdateInNotion.length}, '
-        'Create locally: ${toCreateLocally.length}, '
-        'Update locally: ${toUpdateLocally.length}, '
-        'Delete locally: ${toDeleteLocally.length}');
+    print(
+      'Sync plan: '
+      'Create in Notion: ${toCreateInNotion.length}, '
+      'Update in Notion: ${toUpdateInNotion.length}, '
+      'Create locally: ${toCreateLocally.length}, '
+      'Update locally: ${toUpdateLocally.length}, '
+      'Delete locally: ${toDeleteLocally.length}',
+    );
 
     // 6. Execute sync operations
     return await _executeBidirectionalSync(
@@ -343,11 +362,15 @@ class NotionAutoSyncService {
       if (index != -1) {
         // Validate folder exists locally
         final notionFolder = notionTask['folder'] as String;
-        final folderExists = foldersList.value.any((f) => f['name'] == notionFolder);
+        final folderExists = foldersList.value.any(
+          (f) => f['name'] == notionFolder,
+        );
         final folder = folderExists ? notionFolder : 'Inbox';
 
         if (!folderExists) {
-          print('Warning: Notion folder "$notionFolder" not found locally, using Inbox');
+          print(
+            'Warning: Notion folder "$notionFolder" not found locally, using Inbox',
+          );
         }
 
         // Update existing local task
@@ -371,11 +394,15 @@ class NotionAutoSyncService {
     for (final notionTask in toCreateLocally) {
       // Validate folder exists locally
       final notionFolder = notionTask['folder'] as String;
-      final folderExists = foldersList.value.any((f) => f['name'] == notionFolder);
+      final folderExists = foldersList.value.any(
+        (f) => f['name'] == notionFolder,
+      );
       final folder = folderExists ? notionFolder : 'Inbox';
 
       if (!folderExists) {
-        print('Warning: Notion folder "$notionFolder" not found locally, using Inbox');
+        print(
+          'Warning: Notion folder "$notionFolder" not found locally, using Inbox',
+        );
       }
 
       newLocalTasks.add([
@@ -404,7 +431,9 @@ class NotionAutoSyncService {
       if (success) {
         notionUpdates++;
         // Update local timestamp to now (since we just synced to Notion)
-        final index = newLocalTasks.indexWhere((t) => t.length > 5 && t[5] == pageId);
+        final index = newLocalTasks.indexWhere(
+          (t) => t.length > 5 && t[5] == pageId,
+        );
         if (index != -1) {
           newLocalTasks[index] = TaskTimestamp.setTimestamp(
             newLocalTasks[index],
@@ -448,8 +477,11 @@ class NotionAutoSyncService {
     }
 
     // 6. Apply changes to local state (single write to prevent sync loops)
-    if (localUpdates > 0 || localCreates > 0 || localDeletes > 0 ||
-        notionUpdates > 0 || notionCreates > 0) {
+    if (localUpdates > 0 ||
+        localCreates > 0 ||
+        localDeletes > 0 ||
+        notionUpdates > 0 ||
+        notionCreates > 0) {
       _suppressNextSync = true; // CRITICAL: Prevent sync loop
       toDoList.value = newLocalTasks;
     }
@@ -514,6 +546,30 @@ class NotionAutoSyncService {
       syncState.value = SyncState.disabled;
       _debounceTimer?.cancel();
       stopPolling(); // Stop polling when disconnected
+
+      // Clear all Notion Page IDs from local tasks when disconnected
+      // to ensure a clean state if re-connected later
+      bool needsUpdate = false;
+      final currentTasks = List<List<dynamic>>.from(toDoList.value);
+
+      for (int i = 0; i < currentTasks.length; i++) {
+        final task = currentTasks[i];
+        if (task.length > 5 && task[5] != null) {
+          final updatedTask = List<dynamic>.from(task);
+          updatedTask[5] = null; // Clear Notion Page ID
+          updatedTask[6] =
+              TaskTimestamp.now(); // Update timestamp to force sync when reconnected
+          currentTasks[i] = updatedTask;
+          needsUpdate = true;
+        }
+      }
+
+      if (needsUpdate) {
+        print(
+          'Clearing Notion page IDs from ${currentTasks.length} tasks due to disconnect',
+        );
+        toDoList.value = currentTasks;
+      }
     }
   }
 
@@ -526,7 +582,9 @@ class NotionAutoSyncService {
 
     stopPolling(); // Stop existing timer
 
-    print('Starting Notion polling every ${_pollingInterval.inMinutes} minutes');
+    print(
+      'Starting Notion polling every ${_pollingInterval.inMinutes} minutes',
+    );
 
     _pollingTimer = Timer.periodic(_pollingInterval, (timer) async {
       // Only poll if app is active and Notion is connected
@@ -607,9 +665,9 @@ class NotionAutoSyncService {
 
 /// Sync state enum
 enum SyncState {
-  idle,      // No sync needed, Notion connected
-  syncing,   // Active sync in progress
-  success,   // Last sync completed successfully
-  error,     // Last sync failed
-  disabled   // Notion not connected
+  idle, // No sync needed, Notion connected
+  syncing, // Active sync in progress
+  success, // Last sync completed successfully
+  error, // Last sync failed
+  disabled, // Notion not connected
 }

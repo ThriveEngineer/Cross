@@ -13,8 +13,31 @@ class NotionService {
   static Future<void> saveCredentials(String apiKey, String databaseId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_apiKeyKey, apiKey);
-      await prefs.setString(_databaseIdKey, databaseId);
+
+      // Extract the 32-character database ID from a Notion URL if pasted
+      String cleanDatabaseId = databaseId.trim();
+
+      // Typical URL format: https://www.notion.so/workspace/Database-Name-1234567890abcdef1234567890abcdef?v=...
+      // Or: https://notion.so/1234567890abcdef1234567890abcdef?v=...
+      final urlRegExp = RegExp(
+        r'notion\.so/(?:[^/]+/)?(?:[^-]+-)?([a-fA-F0-9]{32})(?:\?|$)',
+      );
+      final match = urlRegExp.firstMatch(cleanDatabaseId);
+
+      if (match != null && match.groupCount >= 1) {
+        cleanDatabaseId = match.group(1)!;
+      } else if (cleanDatabaseId.length > 32) {
+        // Just try to grab any 32 char hex string as a fallback
+        final fallbackMatch = RegExp(
+          r'([a-fA-F0-9]{32})',
+        ).firstMatch(cleanDatabaseId);
+        if (fallbackMatch != null) {
+          cleanDatabaseId = fallbackMatch.group(1)!;
+        }
+      }
+
+      await prefs.setString(_apiKeyKey, apiKey.trim());
+      await prefs.setString(_databaseIdKey, cleanDatabaseId);
     } catch (e) {
       print('Failed to save Notion credentials: $e');
       rethrow;
@@ -47,8 +70,10 @@ class NotionService {
   static Future<bool> isConnected() async {
     final apiKey = await getApiKey();
     final databaseId = await getDatabaseId();
-    return apiKey != null && apiKey.isNotEmpty &&
-           databaseId != null && databaseId.isNotEmpty;
+    return apiKey != null &&
+        apiKey.isNotEmpty &&
+        databaseId != null &&
+        databaseId.isNotEmpty;
   }
 
   /// Disconnect from Notion
@@ -96,21 +121,21 @@ class NotionService {
           'Name': {
             'title': [
               {
-                'text': {'content': taskName}
-              }
-            ]
+                'text': {'content': taskName},
+              },
+            ],
           },
           'Status': {
-            'status': {'name': isCompleted ? 'Done' : 'Not started'}
+            'status': {'name': isCompleted ? 'Done' : 'Not started'},
           },
           'Folder': {
-            'select': {'name': folder}
+            'select': {'name': folder},
           },
           if (parsedDate != null)
             'Due Date': {
-              'date': {'start': parsedDate.toIso8601String().split('T')[0]}
+              'date': {'start': parsedDate.toIso8601String().split('T')[0]},
             },
-        }
+        },
       };
 
       final response = await http.post(
@@ -127,12 +152,19 @@ class NotionService {
         final responseData = jsonDecode(response.body);
         return responseData['id'] as String;
       } else {
+        String errorMsg = 'Unknown error';
+        try {
+          final errorData = jsonDecode(response.body);
+          if (errorData['message'] != null) {
+            errorMsg = errorData['message'];
+          }
+        } catch (_) {}
         print('Notion API error: ${response.statusCode} - ${response.body}');
-        return null;
+        throw Exception(errorMsg);
       }
     } catch (e) {
       print('Failed to create task in Notion: $e');
-      return null;
+      rethrow;
     }
   }
 
@@ -168,16 +200,16 @@ class NotionService {
         'Name': {
           'title': [
             {
-              'text': {'content': taskName}
-            }
-          ]
+              'text': {'content': taskName},
+            },
+          ],
         },
       };
 
       // Only add Status if the property exists in the database
       try {
         properties['Status'] = {
-          'status': {'name': isCompleted ? 'Done' : 'Not started'}
+          'status': {'name': isCompleted ? 'Done' : 'Not started'},
         };
       } catch (e) {
         print('Status property may not exist: $e');
@@ -186,7 +218,7 @@ class NotionService {
       // Only add Folder if the property exists
       try {
         properties['Folder'] = {
-          'select': {'name': folder}
+          'select': {'name': folder},
         };
       } catch (e) {
         print('Folder property may not exist: $e');
@@ -195,7 +227,7 @@ class NotionService {
       // Add or clear Due Date
       if (parsedDate != null) {
         properties['Due Date'] = {
-          'date': {'start': parsedDate.toIso8601String().split('T')[0]}
+          'date': {'start': parsedDate.toIso8601String().split('T')[0]},
         };
       }
 
@@ -218,20 +250,29 @@ class NotionService {
         print('Successfully updated task: $taskName');
         return true;
       } else {
+        String errorMsg = 'Unknown error';
+        try {
+          final errorData = jsonDecode(response.body);
+          if (errorData['message'] != null) {
+            errorMsg = errorData['message'];
+          }
+        } catch (_) {}
         print('Notion API error updating "$taskName":');
         print('Status: ${response.statusCode}');
         print('Response: ${response.body}');
-        return false;
+        throw Exception(errorMsg);
       }
     } catch (e) {
       print('Failed to update task "$taskName" in Notion: $e');
-      return false;
+      rethrow;
     }
   }
 
   /// Sync all tasks to Notion
   /// Returns updated tasks list with Notion page IDs and sync statistics
-  static Future<Map<String, dynamic>> syncAllTasks(List<List<dynamic>> tasks) async {
+  static Future<Map<String, dynamic>> syncAllTasks(
+    List<List<dynamic>> tasks,
+  ) async {
     int successCount = 0;
     int failCount = 0;
     int updatedCount = 0;
@@ -325,8 +366,17 @@ class NotionService {
       final apiKey = await getApiKey();
       final databaseId = await getDatabaseId();
 
-      if (apiKey == null || databaseId == null) {
-        return false;
+      if (apiKey == null ||
+          databaseId == null ||
+          apiKey.isEmpty ||
+          databaseId.isEmpty) {
+        throw Exception('API Key or Database ID is missing');
+      }
+
+      if (databaseId.length != 32) {
+        throw Exception(
+          'Database ID must be 32 characters long. Provided ID length: ${databaseId.length}',
+        );
       }
 
       final url = Uri.parse('$_notionApiBase/databases/$databaseId');
@@ -339,10 +389,30 @@ class NotionService {
         },
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        String errorMsg = 'Database connection failed';
+        try {
+          final errorData = jsonDecode(response.body);
+          if (errorData['message'] != null) {
+            errorMsg = errorData['message'];
+          }
+        } catch (_) {}
+
+        if (response.statusCode == 404) {
+          throw Exception(
+            'Database not found. Did you share the database with your integration?',
+          );
+        } else if (response.statusCode == 401) {
+          throw Exception('Unauthorized. Is your API key correct?');
+        } else {
+          throw Exception('$errorMsg (HTTP ${response.statusCode})');
+        }
+      }
     } catch (e) {
       print('Connection test failed: $e');
-      return false;
+      rethrow;
     }
   }
 
@@ -389,10 +459,7 @@ class NotionService {
         bool hasMore = responseData['has_more'] as bool? ?? false;
 
         while (hasMore && nextCursor != null) {
-          final nextBody = {
-            'page_size': 100,
-            'start_cursor': nextCursor,
-          };
+          final nextBody = {'page_size': 100, 'start_cursor': nextCursor};
 
           final nextResponse = await http.post(
             url,
@@ -446,14 +513,16 @@ class NotionService {
     // Extract completion status from Status property
     bool isCompleted = false;
     if (props['Status'] != null && props['Status']['status'] != null) {
-      final statusName = props['Status']['status']['name'] as String? ?? 'Not started';
+      final statusName =
+          props['Status']['status']['name'] as String? ?? 'Not started';
       isCompleted = statusName == 'Done';
     }
 
     // Extract folder from Select property
     String folder = 'Inbox';
     if (props['Folder'] != null && props['Folder']['select'] != null) {
-      final notionFolder = props['Folder']['select']['name'] as String? ?? 'Inbox';
+      final notionFolder =
+          props['Folder']['select']['name'] as String? ?? 'Inbox';
       // Validate folder exists locally - if not, default to Inbox
       folder = notionFolder; // Validation will happen during sync
     }

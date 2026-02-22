@@ -232,7 +232,7 @@ class _FabState extends State<Fab> {
                         isScrollControlled: true,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
+                            top: Radius.circular(30),
                           ),
                         ),
                         builder: (context) {

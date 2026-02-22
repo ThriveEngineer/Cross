@@ -21,10 +21,8 @@ class _FolderPageState extends State<FolderPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FolderDetailPage(
-          folderName: folderName,
-          folderIcon: folderIcon,
-        ),
+        builder: (context) =>
+            FolderDetailPage(folderName: folderName, folderIcon: folderIcon),
       ),
     );
   }
@@ -77,106 +75,111 @@ class _FolderPageState extends State<FolderPage> {
                 children: [
                   const Text(
                     "Folders",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-          Expanded(
-            child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: foldersList,
-              builder: (context, folders, _) {
-                return ValueListenableBuilder<Set<int>>(
-                  valueListenable: selectedFolders,
-                  builder: (context, selectedIndices, _) {
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      itemCount: folders.length,
-                      itemBuilder: (context, index) {
-                        final folder = folders[index];
-                        final folderName = folder['name'] as String;
-                        final folderIcon = folder['icon'] as IconData;
-                        final isDefault = folder['isDefault'] as bool;
-                        final isSelected = selectedIndices.contains(index);
+            Expanded(
+              child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: foldersList,
+                builder: (context, folders, _) {
+                  return ValueListenableBuilder<Set<int>>(
+                    valueListenable: selectedFolders,
+                    builder: (context, selectedIndices, _) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        itemCount: folders.length,
+                        itemBuilder: (context, index) {
+                          final folder = folders[index];
+                          final folderName = folder['name'] as String;
+                          final folderIcon = folder['icon'] as IconData;
+                          final isDefault = folder['isDefault'] as bool;
+                          final isSelected = selectedIndices.contains(index);
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: InkWell(
-                        onTap: () {
-                          if (inSelectionMode) {
-                            if (!isDefault) {
-                              _toggleFolderSelection(index);
-                            }
-                          } else {
-                            _navigateToFolder(folderName, folderIcon);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            color: isSelected && inSelectionMode
-                                ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
-                                : const Color.fromARGB(255, 243, 243, 243),
-                            borderRadius: BorderRadius.circular(12),
-                            border: isSelected && inSelectionMode
-                                ? Border.all(
-                                    color: Theme.of(context).primaryColor,
-                                    width: 2,
-                                  )
-                                : null,
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          child: Row(
-                            children: [
-                              if (inSelectionMode)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 12),
-                                  child: Icon(
-                                    isSelected
-                                        ? Icons.check_circle
-                                        : (isDefault
-                                            ? Icons.lock_outline
-                                            : Icons.circle_outlined),
-                                    color: isSelected
-                                        ? Theme.of(context).primaryColor
-                                        : (isDefault ? Colors.grey : Colors.grey.shade400),
-                                    size: 24,
-                                  ),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: InkWell(
+                              onTap: () {
+                                if (inSelectionMode) {
+                                  if (!isDefault) {
+                                    _toggleFolderSelection(index);
+                                  }
+                                } else {
+                                  _navigateToFolder(folderName, folderIcon);
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Ink(
+                                decoration: BoxDecoration(
+                                  color: isSelected && inSelectionMode
+                                      ? Theme.of(
+                                          context,
+                                        ).primaryColor.withValues(alpha: 0.2)
+                                      : const Color.fromARGB(
+                                          255,
+                                          243,
+                                          243,
+                                          243,
+                                        ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              Icon(folderIcon, size: 24),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  folderName,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                  ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  children: [
+                                    if (inSelectionMode)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 12,
+                                        ),
+                                        child: Icon(
+                                          isSelected
+                                              ? IconsaxPlusBold.tick_circle
+                                              : (isDefault
+                                                    ? Icons.lock_outline
+                                                    : Icons.circle_outlined),
+                                          color: isSelected
+                                              ? Theme.of(context).primaryColor
+                                              : (isDefault
+                                                    ? Colors.grey
+                                                    : Colors.grey.shade400),
+                                          size: 24,
+                                        ),
+                                      ),
+                                    Icon(folderIcon, size: 24),
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        folderName,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                    if (!inSelectionMode)
+                                      Icon(
+                                        IconsaxPlusLinear.arrow_right_3,
+                                        size: 24,
+                                      ),
+                                  ],
                                 ),
                               ),
-                              if (!inSelectionMode)
-                                Icon(
-                                  IconsaxPlusLinear.arrow_right_3,
-                                  size: 24,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
+                            ),
+                          );
+                        },
                       );
                     },
                   );
                 },
-              );
-            },
-          ),
-        ),
-      ],
-      );
-    },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

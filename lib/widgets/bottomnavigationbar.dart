@@ -673,7 +673,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
         children: [
           Container(height: 0.5, color: Color(0xFFCACACA)),
           NavigationBar(
-            height: 65,
+            height: 55,
             selectedIndex: _currentIndex,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             indicatorColor: Colors.black,
@@ -684,28 +684,28 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
             },
             destinations: const [
               NavigationDestination(
-                icon: Icon(IconsaxPlusLinear.calendar_1, size: 28),
+                icon: Icon(IconsaxPlusLinear.calendar_1, size: 25),
                 selectedIcon: Icon(
                   IconsaxPlusBold.calendar_1,
-                  size: 28,
+                  size: 25,
                   color: Colors.white,
                 ),
                 label: '',
               ),
               NavigationDestination(
-                icon: Icon(IconsaxPlusLinear.calendar, size: 28),
+                icon: Icon(IconsaxPlusLinear.calendar, size: 25),
                 selectedIcon: Icon(
                   IconsaxPlusBold.calendar,
-                  size: 28,
+                  size: 25,
                   color: Colors.white,
                 ),
                 label: '',
               ),
               NavigationDestination(
-                icon: Icon(IconsaxPlusLinear.folder, size: 28),
+                icon: Icon(IconsaxPlusLinear.folder, size: 25),
                 selectedIcon: Icon(
                   IconsaxPlusBold.folder,
-                  size: 28,
+                  size: 25,
                   color: Colors.white,
                 ),
                 label: '',

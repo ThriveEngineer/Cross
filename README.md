@@ -8,26 +8,26 @@
 Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps of mine.
 
 ### Release Information
-**APK Release is expected on the 15.12.25**  
-**Release on the Google Play Store is expected on the 25.01.26**  
-**Release on the App Store is expected on the 23.05.26**
+**Android APK: [Download](https://github.com/ThriveEngineer/Cross/releases/download/v1.1.0/app-release.apk)**  
+**IOS App Store: [App Store](https://apps.apple.com/us/app/cross-sync-tasks-to-notion/id6760949467)**  
+**Release on the Google Play Store is expected on the 25.06.26**  
 
 ## Features
 
 - Light mode
 - Today page
 - Folders
+- Upcoming page
+- View Settings
+- Sync to Notion
+- Focus Sessions
 
 
 
 ## Comming Soon!!!
 
-- Upcoming page
-- View Settings
-- Sync to Notion
 - Sync to Obsidian
 - Stranger Things Theme
-- Focus Sessions
 - Groups
 - Dark mode
 
@@ -35,30 +35,27 @@ Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps o
 ## Update Calendar
 In between these bigger updates we will also release smaller updates.  
 
-Spring Update (1 March)  
-Summer Update (21 June)  
-Fall Update (22 September)  
-Winter Update (21 December)
+Spring Update v1.1.0 (1 March)  [✓]
+Summer Update v1.2.0 (21 June)  
+Fall Update v1.3.0 (22 September)  
+Solstice Update v2.0.0 (Quarter 4)
 
 
 
 ## Latest Update!
-
+v1.1.0
 
 
 #### 
 
 - https://github.com/ThriveEngineer/Cross/releases
-- Latest commit deployed to Apple App Store: Released on ___, ___ as Version ___
-- Latest commit deployed to PlayStore: ___, ___ as Version ___
+- Latest commit deployed to Apple App Store: Released on 29.03.2026, as Version v1.0.0
 
 
 ## Design
 - We thoughtfully design every featue before we move on to implementation.
-- FIGMA: https://www.figma.com/design/KnZDAT6HGkz1CxK9atxBIN/Thrive-Universe?node-id=0-1&t=fHV8sJxc5PsJCt9j-1
 
 ## Getting Started
-- [**Contributing**](https://github.com/ThriveEngineer/Cross?tab=contributing-ov-file)
 - Make sure you have Flutter installed.
 #### 1. Clone the repository
 

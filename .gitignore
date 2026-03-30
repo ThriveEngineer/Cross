@@ -12,6 +12,12 @@
 .env.*
 !.env.example
 
+# macOS metadata
+.DS_Store
+
+# Claude Code
+.claude/
+
 
 
 # Flutter repo-specific

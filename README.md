@@ -35,7 +35,7 @@ Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps o
 ## Update Calendar
 In between these bigger updates we will also release smaller updates.  
 
-Spring Update v1.1.0 (1 March)  [✓]
+Spring Update v1.1.0 (1 March)  [✓]  
 Summer Update v1.2.0 (21 June)  
 Fall Update v1.3.0 (22 September)  
 Solstice Update v2.0.0 (Quarter 4)

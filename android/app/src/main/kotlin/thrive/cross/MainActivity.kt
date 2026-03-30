@@ -1,5 +1,11 @@
 package thrive.cross
 
-import io.flutter.embedding.android.FlutterActivity
+import android.content.Intent
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterFragmentActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+}

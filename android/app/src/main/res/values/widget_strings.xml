@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="task_list_widget_description">Shows tasks from a folder with interactive checkboxes</string>
+    <string name="folder_overview_widget_description">See all folders with task counts at a glance</string>
+    <string name="due_today_widget_description">Shows tasks due today with interactive checkboxes</string>
+    <string name="quick_add_widget_description">Quickly open the app to add a task</string>
+</resources>

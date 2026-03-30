@@ -388,6 +388,7 @@ class DataPersistence {
   static Future<void> loadTasks() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      await prefs.reload(); // Pick up changes made by widget background isolate
       final tasksJson = prefs.getString(_tasksKey);
       if (tasksJson != null) {
         final decoded = jsonDecode(tasksJson) as List;

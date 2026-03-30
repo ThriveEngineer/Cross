@@ -1,8 +1,14 @@
 import 'package:cross/Controller/theme.dart';
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/services/notion_auto_sync_service.dart';
+import 'package:cross/services/posthog_service.dart';
+import 'package:cross/services/widget_service.dart';
 import 'package:cross/widgets/bottomnavigationbar.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
+
+/// Signal to open the add-task sheet from a widget deep link.
+final ValueNotifier<bool> openAddTaskSheet = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +22,12 @@ void main() async {
 
   // Initialize auto-save listeners
   DataPersistence.initializeAutoSave();
+
+  // Initialize home screen widgets
+  await WidgetService.initialize();
+
+  // Initialize PostHog analytics
+  await PosthogService.instance.initialize();
 
   runApp(const MyApp());
 }
@@ -32,6 +44,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkForAddTaskIntent();
+  }
+
+  Future<void> _checkForAddTaskIntent() async {
+    try {
+      final pending =
+          await HomeWidget.getWidgetData<String>('widget_pending_deep_link');
+      if (pending != null && pending.isNotEmpty) {
+        await HomeWidget.saveWidgetData<String?>('widget_pending_deep_link', null);
+        if (pending.contains('addTask')) {
+          // Small delay to ensure the Scaffold is ready
+          Future.delayed(const Duration(milliseconds: 400), () {
+            openAddTaskSheet.value = true;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   @override
@@ -45,8 +74,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.resumed) {
-      // App came to foreground - trigger immediate sync
-      NotionAutoSyncService.instance.triggerImmediateSync();
+      // Check if Quick Add widget triggered an "add task" action
+      _checkForAddTaskIntent();
+
+      // App came to foreground - trigger immediate sync & reload tasks
+      // (widget may have toggled a task while the app was backgrounded)
+      DataPersistence.loadTasks().then((_) {
+        NotionAutoSyncService.instance.triggerImmediateSync();
+        WidgetService.syncWidgetData();
+      });
     } else if (state == AppLifecycleState.paused) {
       // App went to background - stop polling to save battery
       NotionAutoSyncService.instance.stopPolling();

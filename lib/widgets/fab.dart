@@ -10,6 +10,9 @@ final ValueNotifier<String> selectedFolder = ValueNotifier<String>('Inbox');
 // Selected date notifier (null means no specific date selected)
 final ValueNotifier<DateTime?> selectedDate = ValueNotifier<DateTime?>(null);
 
+// Tracks whether the focus timer sheet is currently open
+final ValueNotifier<bool> timerSheetVisible = ValueNotifier<bool>(false);
+
 class Fab extends StatefulWidget {
   final VoidCallback onSave;
   final bool isOnFoldersPage;
@@ -33,7 +36,7 @@ class _FabState extends State<Fab> {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(38)),
       ),
       builder: (context) {
         return AnimatedContainer(
@@ -50,10 +53,9 @@ class _FabState extends State<Fab> {
                 ),
                 child: Text(
                   'Select Folder',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
-              Divider(),
               Expanded(
                 child: ValueListenableBuilder<List<Map<String, dynamic>>>(
                   valueListenable: widget.foldersList!,
@@ -201,12 +203,19 @@ class _FabState extends State<Fab> {
                         widget.onCreateFolder!();
                       }
                     } else {
-                      showBottomSheet(
+                      timerSheetVisible.value = true;
+                      final controller = showBottomSheet(
                         context: context,
                         builder: (context) {
-                          return _FocusTimerSheet();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: _FocusTimerSheet(),
+                          );
                         },
                       );
+                      controller.closed.then((_) {
+                        timerSheetVisible.value = false;
+                      });
                     }
                   },
                   shape: RoundedRectangleBorder(

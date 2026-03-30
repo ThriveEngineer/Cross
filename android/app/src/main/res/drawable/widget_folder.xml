@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Clean folder icon matching iconsax linear style -->
+    <path
+        android:pathData="M22,11v5.5c0,3.5 -1.5,5 -5,5h-10c-3.5,0 -5,-1.5 -5,-5v-9c0,-3.5 1.5,-5 5,-5h1.5c1.5,0 1.83,0.44 2.4,1.2l1.5,2c0.38,0.51 0.6,0.8 1.6,0.8h3c3.5,0 5,1.5 5,5z"
+        android:strokeColor="#1D1D1D"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent" />
+</vector>

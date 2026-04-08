@@ -8,7 +8,7 @@
 Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps of mine.
 
 ### Release Information
-**Android APK: [Download](https://github.com/ThriveEngineer/Cross/releases/download/v1.1.0/app-release.apk)**  
+**Android APK: [Download](https://github.com/ThriveEngineer/Cross/releases/download/v1.1.1/app-release.apk)**  
 **IOS App Store: [App Store](https://apps.apple.com/us/app/cross-sync-tasks-to-notion/id6760949467)**  
 **Release on the Google Play Store is expected on the 25.06.26**  
 
@@ -43,13 +43,20 @@ Solstice Update v2.0.0 (Quarter 4)
 
 
 ## Latest Update!
-v1.1.0
+v1.1.1
 
 
 #### 
 
 - https://github.com/ThriveEngineer/Cross/releases
-- Latest commit deployed to Apple App Store: Released on 29.03.2026, as Version v1.0.0
+- Latest commit deployed to Apple App Store: Released on 08.04.2026, as Version v1.1.1
+#### IOS
+- Force sync after Notion connection
+
+#### Android (Open Source)
+- Better and more polished design
+- New animations
+- Reintroducing the Upcoming page
 
 
 ## Design

@@ -177,9 +177,31 @@ class _TodayPageState extends State<TodayPage> {
                 children: [
                   SizedBox(width: 25),
 
-                  Text(
-                    "Today",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  GestureDetector(
+                    onTap: () => currentTabIndex.value = 0,
+                    behavior: HitTestBehavior.opaque,
+                    child: Text(
+                      "Today",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 14),
+
+                  GestureDetector(
+                    onTap: () => currentTabIndex.value = 1,
+                    behavior: HitTestBehavior.opaque,
+                    child: Text(
+                      "Upcoming",
+                      style: TextStyle(
+                        fontSize: 29,
+                        fontWeight: FontWeight.w500,
+                        color: Color.fromARGB(255, 212, 212, 212),
+                      ),
+                    ),
                   ),
 
                   Spacer(),

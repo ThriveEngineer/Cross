@@ -1,3 +1,4 @@
+import 'package:cross/Controller/dates.dart';
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/widgets/task_selection_menu.dart';
 import 'package:cross/widgets/todo_tile.dart';
@@ -160,15 +161,61 @@ class _UpcomingPageState extends State<UpcomingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 247, 247, 245),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.only(left: 25, top: 0),
-            child: Text(
-              "Upcoming",
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.only(left: 25, right: 25, top: 0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => currentTabIndex.value = 0,
+                  behavior: HitTestBehavior.opaque,
+                  child: Text(
+                    "Today",
+                    style: TextStyle(
+                      fontSize: 29,
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromARGB(255, 212, 212, 212),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 14),
+                GestureDetector(
+                  onTap: () => currentTabIndex.value = 1,
+                  behavior: HitTestBehavior.opaque,
+                  child: Text(
+                    "Upcoming",
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                Spacer(),
+
+                Column(
+                  children: [
+                    Text(
+                      dayNumber,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      monthNameShort,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        color: Color.fromARGB(255, 145, 145, 145),
+                        height: 1.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
 
@@ -184,26 +231,40 @@ class _UpcomingPageState extends State<UpcomingPage> {
 
                     if (groupedTasks.isEmpty) {
                       return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "No upcoming tasks",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                              ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 30,
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Create tasks with dates to see them here",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
                             ),
-                          ],
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "No upcoming tasks",
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  "Create tasks with dates to see them here",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color.fromARGB(255, 145, 145, 145),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     }
@@ -248,16 +309,50 @@ class _UpcomingPageState extends State<UpcomingPage> {
                               // Date header
                               Padding(
                                 padding: const EdgeInsets.only(
-                                  left: 8,
+                                  left: 12,
                                   bottom: 12,
                                   top: 16,
+                                  right: 8,
                                 ),
-                                child: Text(
-                                  _formatDateHeader(dateKey),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      _formatDateHeader(dateKey),
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                          255,
+                                          237,
+                                          237,
+                                          237,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        "${tasks.length}",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color.fromARGB(
+                                            255,
+                                            95,
+                                            95,
+                                            95,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
 
@@ -266,8 +361,9 @@ class _UpcomingPageState extends State<UpcomingPage> {
                                 valueListenable: selectionMode,
                                 builder: (context, inSelectionMode, _) {
                                   return Container(
+                                    clipBehavior: Clip.hardEdge,
                                     decoration: BoxDecoration(
-                                      color: Color.fromARGB(255, 242, 242, 247),
+                                      color: Colors.white,
                                       borderRadius: BorderRadius.circular(24),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -294,6 +390,7 @@ class _UpcomingPageState extends State<UpcomingPage> {
                                                 vertical: 2,
                                               ),
                                               child: TodoTile(
+                                                key: ObjectKey(task),
                                                 taskName: task[0],
                                                 folderName: task.length > 2
                                                     ? task[2]

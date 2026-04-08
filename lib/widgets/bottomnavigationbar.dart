@@ -41,6 +41,7 @@ class BottomnavigationbarWidget extends StatefulWidget {
 
 class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
   int _currentIndex = 0;
+  int _previousIndex = 0;
   final TextEditingController _folderController = TextEditingController();
   IconData _selectedIcon = IconsaxPlusLinear.folder;
 
@@ -213,14 +214,34 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
     super.initState();
     currentTabIndex.value = _currentIndex;
     openAddTaskSheet.addListener(_onAddTaskSignal);
+    currentTabIndex.addListener(_onExternalTabChange);
+  }
+
+  void _setCurrentIndex(int index, {bool syncNotifier = true}) {
+    if (index == _currentIndex) return;
+    if (index < 0 || index >= _tabs.length) return;
+    if (!mounted) return;
+
+    setState(() {
+      _previousIndex = _currentIndex;
+      _currentIndex = index;
+    });
+
+    if (syncNotifier && currentTabIndex.value != index) {
+      currentTabIndex.value = index;
+    }
+  }
+
+  void _onExternalTabChange() {
+    final newIndex = currentTabIndex.value;
+    _setCurrentIndex(newIndex, syncNotifier: false);
   }
 
   void _onAddTaskSignal() {
     if (openAddTaskSheet.value) {
       openAddTaskSheet.value = false;
       // Ensure we're on the Today tab and show the add-task sheet
-      setState(() => _currentIndex = 0);
-      currentTabIndex.value = 0;
+      _setCurrentIndex(0);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showAddTaskSheet();
       });
@@ -706,12 +727,16 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
   @override
   void dispose() {
     openAddTaskSheet.removeListener(_onAddTaskSignal);
+    currentTabIndex.removeListener(_onExternalTabChange);
     _folderController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isForward = _currentIndex >= _previousIndex;
+    final double direction = isForward ? 1.0 : -1.0;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 247, 247, 245),
 
@@ -843,9 +868,9 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
       */
       appBar: AppbarWidget(),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 240),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOutQuart,
+        switchOutCurve: Curves.easeInQuart,
         layoutBuilder: (currentChild, previousChildren) {
           return Stack(
             fit: StackFit.expand,
@@ -856,15 +881,25 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
           );
         },
         transitionBuilder: (child, animation) {
+          final childIndex = child.key is ValueKey<int>
+              ? (child.key as ValueKey<int>).value
+              : _currentIndex;
+          final isIncoming = childIndex == _currentIndex;
+          final beginX = isIncoming ? 0.045 * direction : -0.045 * direction;
+
           final curved = CurvedAnimation(
             parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
+            curve: Curves.easeOutQuart,
+            reverseCurve: Curves.easeInQuart,
           );
+
           return FadeTransition(
             opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.99, end: 1.0).animate(curved),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(beginX, 0),
+                end: Offset.zero,
+              ).animate(curved),
               child: child,
             ),
           );
@@ -881,6 +916,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
           ValueListenableBuilder<bool>(
             valueListenable: selectionMode,
             builder: (context, inSelectionMode, _) {
+              final navSelectedIndex = _currentIndex == 2 ? 2 : 0;
               final centerButton = Container(
                 width: 93,
                 height: 35,
@@ -917,7 +953,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
               return NavigationBar(
                 backgroundColor: Color.fromARGB(255, 247, 247, 245),
                 height: 55,
-                selectedIndex: _currentIndex,
+                selectedIndex: navSelectedIndex,
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
                 indicatorColor: Colors.transparent,
                 onDestinationSelected: (int index) {
@@ -937,10 +973,7 @@ class _BottomnavigationbarWidgetState extends State<BottomnavigationbarWidget> {
                     }
                     return;
                   }
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  currentTabIndex.value = index;
+                  _setCurrentIndex(index);
                 },
                 destinations: [
                   NavigationDestination(

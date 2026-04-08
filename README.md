@@ -3,7 +3,7 @@
 # Cross: Minimal Notes
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
 
-![Logo](https://framerusercontent.com/images/f7gERpDpbyjUVMmJz3njsItdc8.png?width=1920&height=1080)
+![Logo](https://framerusercontent.com/images/YaWITKtAg29hTtpB1XaZaecMk.png?width=1920&height=1080)
 
 Cross is a minimal notes app, that syncs to Notion, Obsidian and upcoming apps of mine.
 

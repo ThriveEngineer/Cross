@@ -1,17 +1,13 @@
 import 'dart:convert';
 import 'package:cross/widgets/todo_tile.dart';
+import 'package:cross/widgets/task_selection_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notion_auto_sync_service.dart';
 
 // Enum for sort options
-enum SortOption {
-  manual,
-  name,
-  date,
-  folder,
-}
+enum SortOption { manual, name, date, folder }
 
 // Extension for display names and persistence
 extension SortOptionExtension on SortOption {
@@ -71,7 +67,7 @@ class TaskTimestamp {
   static int compare(String? t1, String? t2) {
     if (t1 == null && t2 == null) return 0;
     if (t1 == null) return -1; // t1 is older (doesn't exist)
-    if (t2 == null) return 1;  // t1 is newer
+    if (t2 == null) return 1; // t1 is newer
 
     try {
       final dt1 = DateTime.parse(t1);
@@ -94,8 +90,7 @@ class TaskTimestamp {
 // Index 5: String? - Notion page ID (for sync tracking)
 // Index 6: String? - Last modified timestamp (ISO8601 UTC format)
 final ValueNotifier<List<List<dynamic>>> toDoList =
-  ValueNotifier<List<List<dynamic>>>([
-]);
+    ValueNotifier<List<List<dynamic>>>([]);
 
 // Controls whether the Today page shows completed tasks.
 // Default: false => do not show completed tasks in Today.
@@ -109,21 +104,131 @@ final ValueNotifier<bool> showFolderNames = ValueNotifier<bool>(true);
 final ValueNotifier<bool> selectionMode = ValueNotifier<bool>(false);
 
 // Holds the set of currently selected tasks.
-final ValueNotifier<Set<List<dynamic>>> selectedTasks = ValueNotifier<Set<List<dynamic>>>({});
+final ValueNotifier<Set<List<dynamic>>> selectedTasks =
+    ValueNotifier<Set<List<dynamic>>>({});
 
 // Holds the set of currently selected folder indices.
 final ValueNotifier<Set<int>> selectedFolders = ValueNotifier<Set<int>>({});
 
 // Controls the current sort option for task lists.
-final ValueNotifier<SortOption> currentSortOption = ValueNotifier<SortOption>(SortOption.manual);
+final ValueNotifier<SortOption> currentSortOption = ValueNotifier<SortOption>(
+  SortOption.manual,
+);
+
+// Current tab index of bottom navigation: 0 Today, 1 Upcoming, 2 Folders.
+final ValueNotifier<int> currentTabIndex = ValueNotifier<int>(0);
+
+/// Add a task to current selection and enable selection mode.
+void selectTaskForActions(List<dynamic> task) {
+  final newSet = Set<List<dynamic>>.from(selectedTasks.value);
+  newSet.add(task);
+  selectedTasks.value = newSet;
+  selectedFolders.value = Set<int>.from({});
+  selectionMode.value = true;
+}
+
+/// Move all selected tasks into a target folder and clear selection.
+void moveSelectedTasksToFolder(String targetFolder) {
+  final newList = List<List<dynamic>>.from(toDoList.value);
+
+  for (final task in selectedTasks.value) {
+    final index = newList.indexOf(task);
+    if (index != -1) {
+      final taskName = task[0];
+      final isCompleted = task.length > 1 ? task[1] : false;
+      final previousFolder = task.length > 3 && task[3] != null
+          ? task[3]
+          : null;
+      final dateValue = task.length > 4 ? task[4] : null;
+      final notionPageId = task.length > 5 ? task[5] : null;
+
+      newList[index] = [
+        taskName,
+        isCompleted,
+        targetFolder,
+        previousFolder,
+        dateValue,
+        notionPageId,
+        TaskTimestamp.now(),
+      ];
+    }
+  }
+
+  toDoList.value = newList;
+  selectedTasks.value = Set<List<dynamic>>.from({});
+  selectionMode.value = false;
+}
+
+/// Delete all selected tasks and clear selection.
+void deleteSelectedTasks() {
+  final newList = List<List<dynamic>>.from(toDoList.value);
+  newList.removeWhere((task) => selectedTasks.value.contains(task));
+  toDoList.value = newList;
+  selectedTasks.value = Set<List<dynamic>>.from({});
+  selectedFolders.value = Set<int>.from({});
+  selectionMode.value = false;
+}
+
+/// Delete selected folders and move their tasks to Inbox.
+void deleteSelectedFoldersAndMoveTasksToInbox() {
+  final newList = List<Map<String, dynamic>>.from(foldersList.value);
+  final foldersToDelete = <String>[];
+
+  final sortedIndices = selectedFolders.value.toList()
+    ..sort((a, b) => b.compareTo(a));
+
+  for (final index in sortedIndices) {
+    if (index < newList.length) {
+      final folder = newList[index];
+      final isDefault = folder['isDefault'] as bool;
+      if (!isDefault) {
+        foldersToDelete.add(folder['name'] as String);
+        newList.removeAt(index);
+      }
+    }
+  }
+
+  if (foldersToDelete.isNotEmpty) {
+    final taskList = List<List<dynamic>>.from(toDoList.value);
+    for (int i = 0; i < taskList.length; i++) {
+      final task = taskList[i];
+      if (task.length > 2 && foldersToDelete.contains(task[2])) {
+        final updatedTask = List<dynamic>.from(task);
+        updatedTask[2] = 'Inbox';
+        taskList[i] = updatedTask;
+      }
+    }
+    toDoList.value = taskList;
+  }
+
+  foldersList.value = newList;
+  selectedFolders.value = Set<int>.from({});
+  selectedTasks.value = Set<List<dynamic>>.from({});
+  selectionMode.value = false;
+}
+
+/// Select a folder and enter selection mode.
+void selectFolderForActions({
+  required int folderIndex,
+  required bool isDefault,
+}) {
+  if (isDefault) return;
+  final newSet = Set<int>.from(selectedFolders.value);
+  newSet.add(folderIndex);
+  selectedFolders.value = newSet;
+  selectedTasks.value = Set<List<dynamic>>.from({});
+  selectionMode.value = true;
+}
 
 // Registry mapping codePoint -> const IconData for tree-shake-safe icon persistence
 final Map<int, IconData> _iconRegistry = {
-  IconsaxPlusLinear.directbox_notif.codePoint: IconsaxPlusLinear.directbox_notif,
+  IconsaxPlusLinear.directbox_notif.codePoint:
+      IconsaxPlusLinear.directbox_notif,
   IconsaxPlusLinear.heart.codePoint: IconsaxPlusLinear.heart,
   IconsaxPlusLinear.tick_square.codePoint: IconsaxPlusLinear.tick_square,
   IconsaxPlusLinear.folder.codePoint: IconsaxPlusLinear.folder,
-  IconsaxPlusLinear.folder_favorite.codePoint: IconsaxPlusLinear.folder_favorite,
+  IconsaxPlusLinear.folder_favorite.codePoint:
+      IconsaxPlusLinear.folder_favorite,
   IconsaxPlusLinear.archive.codePoint: IconsaxPlusLinear.archive,
   IconsaxPlusLinear.task_square.codePoint: IconsaxPlusLinear.task_square,
   IconsaxPlusLinear.note.codePoint: IconsaxPlusLinear.note,
@@ -143,14 +248,25 @@ IconData iconFromCodePoint(int codePoint) {
 // Holds all folders (default and user-created)
 final ValueNotifier<List<Map<String, dynamic>>> foldersList =
     ValueNotifier<List<Map<String, dynamic>>>([
-  {'name': 'Inbox', 'icon': IconsaxPlusLinear.directbox_notif, 'isDefault': true},
-  {'name': 'Important', 'icon': IconsaxPlusLinear.heart, 'isDefault': true},
-  {'name': 'Completed', 'icon': IconsaxPlusLinear.tick_square, 'isDefault': true},
-]);
+      {
+        'name': 'Inbox',
+        'icon': IconsaxPlusLinear.directbox_notif,
+        'isDefault': true,
+      },
+      {'name': 'Important', 'icon': IconsaxPlusLinear.heart, 'isDefault': true},
+      {
+        'name': 'Completed',
+        'icon': IconsaxPlusLinear.tick_square,
+        'isDefault': true,
+      },
+    ]);
 
 /// Sorts a list of tasks based on the provided sort option
 /// Returns a new sorted list without modifying the original
-List<List<dynamic>> sortTasks(List<List<dynamic>> tasks, SortOption sortOption) {
+List<List<dynamic>> sortTasks(
+  List<List<dynamic>> tasks,
+  SortOption sortOption,
+) {
   final sortedList = List<List<dynamic>>.from(tasks);
 
   switch (sortOption) {
@@ -197,7 +313,8 @@ List<List<dynamic>> sortTasks(List<List<dynamic>> tasks, SortOption sortOption) 
 }
 
 class TodoList extends StatefulWidget {
-  final bool showCompleted; // Flag: true => only completed, false => only non-completed
+  final bool
+  showCompleted; // Flag: true => only completed, false => only non-completed
   final bool showAll; // If true, show all tasks regardless of completion
 
   const TodoList({super.key, this.showCompleted = false, this.showAll = false});
@@ -207,9 +324,12 @@ class TodoList extends StatefulWidget {
 }
 
 class _TodoListState extends State<TodoList> {
-
   // checks if task is completed and moves to Completed folder
-  void checkBoxChanged(bool? value, int index, List<List<dynamic>> filteredList) {
+  void checkBoxChanged(
+    bool? value,
+    int index,
+    List<List<dynamic>> filteredList,
+  ) {
     // Find the actual task in the main list
     final taskToUpdate = filteredList[index];
     final mainListIndex = toDoList.value.indexOf(taskToUpdate);
@@ -217,14 +337,23 @@ class _TodoListState extends State<TodoList> {
     if (mainListIndex != -1) {
       final newList = List<List<dynamic>>.from(toDoList.value);
       final currentTask = newList[mainListIndex];
-      final currentCompleted = (currentTask.length > 1) ? (currentTask[1] as bool) : false;
+      final currentCompleted = (currentTask.length > 1)
+          ? (currentTask[1] as bool)
+          : false;
       final newCompletedStatus = !currentCompleted;
 
       final taskName = currentTask[0];
-      final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
-      final storedPreviousFolder = currentTask.length > 3 && currentTask[3] != null ? currentTask[3] as String : null;
+      final currentFolder = currentTask.length > 2
+          ? currentTask[2] as String
+          : 'Inbox';
+      final storedPreviousFolder =
+          currentTask.length > 3 && currentTask[3] != null
+          ? currentTask[3] as String
+          : null;
       final dateValue = currentTask.length > 4 ? currentTask[4] : null;
-      final notionPageId = currentTask.length > 5 ? currentTask[5] : null; // PRESERVE NOTION PAGE ID
+      final notionPageId = currentTask.length > 5
+          ? currentTask[5]
+          : null; // PRESERVE NOTION PAGE ID
 
       if (newCompletedStatus) {
         // Marking as completed: move to Completed folder
@@ -301,22 +430,34 @@ class _TodoListState extends State<TodoList> {
 
             return ListView.builder(
               itemCount: filteredList.length,
-              itemBuilder: (context, index) { // The builder for each item in the list
+              itemBuilder: (context, index) {
+                // The builder for each item in the list
                 final task = filteredList[index];
                 return ValueListenableBuilder<Set<List<dynamic>>>(
                   valueListenable: selectedTasks,
                   builder: (context, selected, _) {
                     final isSelected = selected.contains(task);
                     return TodoTile(
+                      key: ObjectKey(task),
                       taskName: task[0],
                       folderName: task.length > 2 ? task[2] : 'Inbox',
                       taskCompleted: task[1],
                       isSelected: isSelected,
+                      onLongPress: (anchor) => showTaskSelectionMenu(
+                        context: context,
+                        task: task,
+                        anchor: anchor,
+                      ),
                       onChanged: (value) {
                         if (selectionMode.value) {
-                          final newSet = Set<List<dynamic>>.from(selectedTasks.value);
-                          if (isSelected) newSet.remove(task);
-                          else newSet.add(task);
+                          final newSet = Set<List<dynamic>>.from(
+                            selectedTasks.value,
+                          );
+                          if (isSelected) {
+                            newSet.remove(task);
+                          } else {
+                            newSet.add(task);
+                          }
                           selectedTasks.value = newSet;
                         } else {
                           checkBoxChanged(value, index, filteredList);
@@ -392,7 +533,9 @@ class DataPersistence {
       final tasksJson = prefs.getString(_tasksKey);
       if (tasksJson != null) {
         final decoded = jsonDecode(tasksJson) as List;
-        toDoList.value = decoded.map((task) => List<dynamic>.from(task)).toList();
+        toDoList.value = decoded
+            .map((task) => List<dynamic>.from(task))
+            .toList();
       }
     } catch (e) {
       print('Failed to load tasks: $e');

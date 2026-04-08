@@ -1,6 +1,7 @@
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/services/notion_service.dart';
 import 'package:cross/services/notion_auto_sync_service.dart';
+import 'package:cross/widgets/settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
@@ -125,7 +126,6 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
     try {
       final result = await NotionService.syncAllTasks(toDoList.value);
 
-      final success = result['success'] as int;
       final failed = result['failed'] as int;
       final created = result['created'] as int;
       final updated = result['updated'] as int;
@@ -287,43 +287,23 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 242, 242, 247),
+      backgroundColor: kSettingsBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 24),
           child: Column(
             children: [
-              // Header
-              SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(IconsaxPlusLinear.arrow_left_1),
-                  ),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.2),
-                  Text(
-                    "Notion Integration",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    onPressed: _showSetupInstructions,
-                    icon: Icon(IconsaxPlusLinear.info_circle),
-                  ),
-                ],
+              SettingsPageHeader(
+                title: 'Notion Integration',
+                trailing: IconButton(
+                  onPressed: _showSetupInstructions,
+                  icon: const Icon(IconsaxPlusLinear.info_circle),
+                ),
               ),
-
-              SizedBox(height: 25),
+              const SizedBox(height: 16),
 
               // Connection Status
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                width: 353,
-                decoration: BoxDecoration(
-                  color: ColorScheme.of(context).surface,
-                  borderRadius: BorderRadius.circular(18),
-                ),
+              SettingsSectionCard(
                 child: Row(
                   children: [
                     Icon(
@@ -335,23 +315,17 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     SizedBox(width: 13),
                     Text(
                       _isConnected ? 'Connected' : 'Not connected',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 16),
 
               // Auto-sync Status (when connected)
               if (_isConnected) ...[
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  width: 353,
-                  decoration: BoxDecoration(
-                    color: ColorScheme.of(context).surface,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+                SettingsSectionCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -368,7 +342,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       ValueListenableBuilder<SyncState>(
                         valueListenable:
                             NotionAutoSyncService.instance.syncState,
@@ -380,7 +354,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           );
                         },
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       ValueListenableBuilder<String?>(
                         valueListenable:
                             NotionAutoSyncService.instance.lastSyncTime,
@@ -397,7 +371,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           return _buildInfoRow('Last synced', 'Never');
                         },
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       ValueListenableBuilder<int>(
                         valueListenable:
                             NotionAutoSyncService.instance.syncedTasksCount,
@@ -410,14 +384,8 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                 ),
 
                 // Periodic Sync toggle
-                SizedBox(height: 25),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  width: 353,
-                  decoration: BoxDecoration(
-                    color: ColorScheme.of(context).surface,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+                const SizedBox(height: 16),
+                SettingsSectionCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -434,15 +402,17 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       ValueListenableBuilder<bool>(
                         valueListenable:
                             NotionAutoSyncService.instance.pollingEnabled,
                         builder: (context, enabled, _) {
                           return SwitchListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text('Auto-fetch from Notion'),
-                            subtitle: Text('Check for changes every 5 minutes'),
+                            title: const Text('Auto-fetch from Notion'),
+                            subtitle: const Text(
+                              'Check for changes every 5 minutes',
+                            ),
                             value: enabled,
                             onChanged: (value) {
                               NotionAutoSyncService.instance.setPollingEnabled(
@@ -455,18 +425,13 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 25),
+                const SizedBox(height: 16),
               ],
 
               // Configuration
               if (!_isConnected) ...[
-                Container(
-                  padding: EdgeInsets.all(20),
-                  width: 353,
-                  decoration: BoxDecoration(
-                    color: ColorScheme.of(context).surface,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+                SettingsSectionCard(
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -477,20 +442,21 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           fontSize: 16,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: _apiKeyController,
                         decoration: InputDecoration(
                           hintText: 'secret_...',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
-                          fillColor: Color.fromARGB(255, 250, 250, 250),
+                          fillColor: const Color(0xFFF3F3F1),
                         ),
                         obscureText: true,
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Text(
                         'Database ID',
                         style: TextStyle(
@@ -498,19 +464,20 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           fontSize: 16,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: _databaseIdController,
                         decoration: InputDecoration(
                           hintText: 'abc123...',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
-                          fillColor: Color.fromARGB(255, 250, 250, 250),
+                          fillColor: const Color(0xFFF3F3F1),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -520,7 +487,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                             backgroundColor: ColorScheme.of(context).primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                           child: _isLoading
@@ -538,17 +505,13 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
 
               // Sync Actions (when connected)
               if (_isConnected) ...[
-                Container(
-                  padding: EdgeInsets.all(20),
-                  width: 353,
-                  decoration: BoxDecoration(
-                    color: ColorScheme.of(context).surface,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+                SettingsSectionCard(
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       SizedBox(
@@ -560,7 +523,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                             backgroundColor: ColorScheme.of(context).primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                           icon: _isSyncing
@@ -578,7 +541,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -588,7 +551,7 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                             foregroundColor: Colors.red,
                             side: BorderSide(color: Colors.red),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                           child: Text('Disconnect'),
@@ -597,13 +560,12 @@ class _NotionSettingsPageState extends State<NotionSettingsPage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
-
-              SizedBox(height: 25),
 
               // Info Text
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _isConnected
                       ? 'Bi-directional sync is enabled. Local changes sync to Notion within 3 seconds. Changes from Notion are fetched every 5 minutes or when you pull to refresh.'

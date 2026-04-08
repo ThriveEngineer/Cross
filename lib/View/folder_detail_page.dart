@@ -1,4 +1,5 @@
 import 'package:cross/Controller/todo_list.dart';
+import 'package:cross/widgets/task_selection_menu.dart';
 import 'package:cross/widgets/todo_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -45,7 +46,9 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
         final newCompletedStatus = !(currentTask[1] as bool);
 
         final taskName = currentTask[0];
-        final currentFolder = currentTask.length > 2 ? currentTask[2] as String : 'Inbox';
+        final currentFolder = currentTask.length > 2
+            ? currentTask[2] as String
+            : 'Inbox';
         final previousFolder = currentTask.length > 3 ? currentTask[3] : null;
         final dateValue = currentTask.length > 4 ? currentTask[4] : null;
         final notionPageId = currentTask.length > 5 ? currentTask[5] : null;
@@ -70,7 +73,7 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
         leading: IconButton(
           icon: Icon(IconsaxPlusLinear.arrow_left_1),
           onPressed: () => Navigator.pop(context),
-          ),
+        ),
         title: Row(
           children: [
             Icon(widget.folderIcon),
@@ -92,18 +95,11 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        widget.folderIcon,
-                        size: 64,
-                        color: Colors.grey,
-                      ),
+                      Icon(widget.folderIcon, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
                         "No tasks in ${widget.folderName}",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -123,11 +119,20 @@ class _FolderDetailPageState extends State<FolderDetailPage> {
                         taskName: task[0],
                         taskCompleted: task[1],
                         isSelected: isSelected,
+                        onLongPress: (anchor) => showTaskSelectionMenu(
+                          context: context,
+                          task: task,
+                          anchor: anchor,
+                        ),
                         onChanged: (value) {
                           if (selectionMode.value) {
-                            final newSet = Set<List<dynamic>>.from(selectedTasks.value);
-                            if (isSelected) newSet.remove(task);
-                            else newSet.add(task);
+                            final newSet = Set<List<dynamic>>.from(
+                              selectedTasks.value,
+                            );
+                            if (isSelected)
+                              newSet.remove(task);
+                            else
+                              newSet.add(task);
                             selectedTasks.value = newSet;
                           } else {
                             checkBoxChanged(value, index);

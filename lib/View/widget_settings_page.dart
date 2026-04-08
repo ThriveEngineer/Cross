@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cross/Controller/todo_list.dart';
 import 'package:cross/services/widget_service.dart';
+import 'package:cross/widgets/settings_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
@@ -24,9 +25,12 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
   }
 
   Future<void> _loadFolders() async {
-    // Migrate old shared key if needed
-    final oldFolder = await HomeWidget.getWidgetData<String>('widget_selected_folder');
-    final existingTask = await HomeWidget.getWidgetData<String>('widget_task_folder');
+    final oldFolder = await HomeWidget.getWidgetData<String>(
+      'widget_selected_folder',
+    );
+    final existingTask = await HomeWidget.getWidgetData<String>(
+      'widget_task_folder',
+    );
 
     if (oldFolder != null && existingTask == null) {
       await HomeWidget.saveWidgetData<String>('widget_task_folder', oldFolder);
@@ -56,15 +60,16 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
   Future<void> _requestPinWidget(String qualifiedName) async {
     if (!Platform.isAndroid) return;
     try {
-      await HomeWidget.requestPinWidget(
-        qualifiedAndroidName: qualifiedName,
+      await HomeWidget.requestPinWidget(qualifiedAndroidName: qualifiedName);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not add widget. Try adding it from your home screen.',
+          ),
+        ),
       );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not add widget. Try adding it from your home screen.')),
-        );
-      }
     }
   }
 
@@ -73,154 +78,138 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
     return SafeArea(
       top: false,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(color: Color.fromARGB(255, 242, 242, 247)),
+        height: MediaQuery.of(context).size.height * 0.82,
+        width: double.infinity,
+        color: kSettingsBackgroundColor,
         child: Column(
           children: [
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(IconsaxPlusLinear.arrow_left_1),
-                ),
-                SizedBox(width: MediaQuery.of(context).size.width * 0.28),
-                const Text("Widgets", style: TextStyle(fontWeight: FontWeight.w500)),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(height: 25),
-
+            const SettingsPageHeader(title: 'Widgets'),
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.only(top: 16, bottom: 24),
                 child: Column(
                   children: [
-                    // ── Task List Folder Selection ──
-                    ClipPath(
-                      clipper: ShapeBorderClipper(
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        width: 353,
-                        decoration: BoxDecoration(
-                          color: ColorScheme.of(context).surface,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Task List Folder",
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                    SettingsSectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Task List Folder',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
                             ),
-                            const SizedBox(height: 8),
-                            InkWell(
-                              onTap: () => _showFolderPicker(
-                                context,
-                                currentFolder: _taskFolder,
-                                onSelected: _saveTaskFolder,
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () => _showFolderPicker(
+                              context,
+                              currentFolder: _taskFolder,
+                              onSelected: _saveTaskFolder,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 8,
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(IconsaxPlusLinear.task_square, size: 20),
-                                  const SizedBox(width: 13),
-                                  Text(_taskFolder),
+                                  const Icon(
+                                    IconsaxPlusLinear.task_square,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    _taskFolder,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                   const Spacer(),
-                                  const Icon(IconsaxPlusLinear.arrow_right_3),
+                                  const Icon(
+                                    IconsaxPlusLinear.arrow_right_3,
+                                    size: 18,
+                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "The Task List widget will show tasks from this folder.",
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'The Task List widget will show tasks from this folder.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 15),
-
-                    // ── Add Widgets ──
-                    ClipPath(
-                      clipper: ShapeBorderClipper(
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        width: 353,
-                        decoration: BoxDecoration(
-                          color: ColorScheme.of(context).surface,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Add Widgets",
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    SettingsSectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Add Widgets',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
                             ),
-                            const SizedBox(height: 10),
-                            _WidgetItem(
-                              icon: IconsaxPlusLinear.task_square,
-                              title: "Task List",
-                              subtitle: "View and tick off tasks from a folder",
-                              onAdd: () => _requestPinWidget(
-                                'thrive.cross.widgets.TaskListWidgetReceiver',
-                              ),
+                          ),
+                          const SizedBox(height: 8),
+                          _WidgetItem(
+                            icon: IconsaxPlusLinear.task_square,
+                            title: 'Task List',
+                            subtitle: 'View and tick off tasks from a folder',
+                            onAdd: () => _requestPinWidget(
+                              'thrive.cross.widgets.TaskListWidgetReceiver',
                             ),
-                            const Divider(height: 0.5, color: Color.fromARGB(255, 194, 194, 194)),
-                            _WidgetItem(
-                              icon: IconsaxPlusLinear.calendar_1,
-                              title: "Due Today",
-                              subtitle: "Tasks due today with checkboxes",
-                              onAdd: () => _requestPinWidget(
-                                'thrive.cross.widgets.DueTodayWidgetReceiver',
-                              ),
+                          ),
+                          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+                          _WidgetItem(
+                            icon: IconsaxPlusLinear.calendar_1,
+                            title: 'Due Today',
+                            subtitle: 'Tasks due today with checkboxes',
+                            onAdd: () => _requestPinWidget(
+                              'thrive.cross.widgets.DueTodayWidgetReceiver',
                             ),
-                            const Divider(height: 0.5, color: Color.fromARGB(255, 194, 194, 194)),
-                            _WidgetItem(
-                              icon: IconsaxPlusLinear.folder_open,
-                              title: "Folder Overview",
-                              subtitle: "See all folders with task counts",
-                              onAdd: () => _requestPinWidget(
-                                'thrive.cross.widgets.FolderOverviewWidgetReceiver',
-                              ),
+                          ),
+                          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+                          _WidgetItem(
+                            icon: IconsaxPlusLinear.folder_open,
+                            title: 'Folder Overview',
+                            subtitle: 'See all folders with task counts',
+                            onAdd: () => _requestPinWidget(
+                              'thrive.cross.widgets.FolderOverviewWidgetReceiver',
                             ),
-                            const Divider(height: 0.5, color: Color.fromARGB(255, 194, 194, 194)),
-                            _WidgetItem(
-                              icon: IconsaxPlusLinear.add_square,
-                              title: "Quick Add",
-                              subtitle: "One tap to open the app",
-                              onAdd: () => _requestPinWidget(
-                                'thrive.cross.widgets.QuickAddWidgetReceiver',
-                              ),
+                          ),
+                          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+                          _WidgetItem(
+                            icon: IconsaxPlusLinear.add_square,
+                            title: 'Quick Add',
+                            subtitle: 'One tap to open the app',
+                            onAdd: () => _requestPinWidget(
+                              'thrive.cross.widgets.QuickAddWidgetReceiver',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 15),
-
+                    const SizedBox(height: 16),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 36),
                       child: Text(
-                        "You can also add widgets by long-pressing your home screen and selecting Cross from the widgets list.",
+                        'You can also add widgets by long-pressing your home screen and selecting Cross from the widgets list.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ),
-
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -239,7 +228,7 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
     showCupertinoSheet(
       context: context,
       builder: (context) => Material(
-        color: const Color.fromARGB(255, 242, 242, 247),
+        color: kSettingsBackgroundColor,
         child: _FolderPickerSheet(
           currentFolder: currentFolder,
           onSelected: (folder) {
@@ -271,13 +260,27 @@ class _WidgetItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 22),
-          const SizedBox(width: 13),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F0EE),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 14)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 Text(
                   subtitle,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -288,17 +291,17 @@ class _WidgetItem extends StatelessWidget {
           GestureDetector(
             onTap: onAdd,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
                 color: const Color(0xFF1D1D1D),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Text(
-                "Add",
+                'Add',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -323,76 +326,59 @@ class _FolderPickerSheet extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.6,
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(color: Color.fromARGB(255, 242, 242, 247)),
+        height: MediaQuery.of(context).size.height * 0.65,
+        width: double.infinity,
+        color: kSettingsBackgroundColor,
         child: Column(
           children: [
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(IconsaxPlusLinear.arrow_left_1),
-                ),
-                SizedBox(width: MediaQuery.of(context).size.width * 0.22),
-                const Text("Select Folder", style: TextStyle(fontWeight: FontWeight.w500)),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(height: 15),
+            const SettingsPageHeader(title: 'Select Folder'),
+            const SizedBox(height: 12),
             Expanded(
               child: ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: foldersList,
                 builder: (context, folders, _) {
-                  return ClipPath(
-                    clipper: ShapeBorderClipper(
-                      shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: ColorScheme.of(context).surface,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        itemCount: folders.length,
-                        separatorBuilder: (_, __) => const Divider(
-                          height: 0.5,
-                          color: Color.fromARGB(255, 194, 194, 194),
-                        ),
-                        itemBuilder: (context, index) {
-                          final folder = folders[index];
-                          final name = folder['name'] as String;
-                          final icon = folder['icon'] as IconData;
-                          final isSelected = name == currentFolder;
+                  return SettingsSectionCard(
+                    child: ListView.separated(
+                      itemCount: folders.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+                      itemBuilder: (context, index) {
+                        final folder = folders[index];
+                        final name = folder['name'] as String;
+                        final icon = folder['icon'] as IconData;
+                        final isSelected = name == currentFolder;
 
-                          return InkWell(
-                            onTap: () => onSelected(name),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Row(
-                                children: [
-                                  Icon(icon, size: 20),
-                                  const SizedBox(width: 13),
-                                  Text(name),
-                                  const Spacer(),
-                                  if (isSelected)
-                                    const Icon(
-                                      IconsaxPlusBold.tick_circle,
-                                      color: Color(0xFF1D1D1D),
-                                      size: 20,
-                                    ),
-                                ],
-                              ),
+                        return InkWell(
+                          onTap: () => onSelected(name),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 12,
                             ),
-                          );
-                        },
-                      ),
+                            child: Row(
+                              children: [
+                                Icon(icon, size: 20),
+                                const SizedBox(width: 12),
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (isSelected)
+                                  const Icon(
+                                    IconsaxPlusBold.tick_circle,
+                                    color: Color(0xFF1D1D1D),
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

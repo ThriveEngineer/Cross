@@ -13,6 +13,24 @@ final ValueNotifier<DateTime?> selectedDate = ValueNotifier<DateTime?>(null);
 // Tracks whether the focus timer sheet is currently open
 final ValueNotifier<bool> timerSheetVisible = ValueNotifier<bool>(false);
 
+void showFocusTimerBottomSheet(BuildContext context) {
+  if (timerSheetVisible.value) return;
+
+  timerSheetVisible.value = true;
+  final controller = showBottomSheet(
+    context: context,
+    builder: (context) {
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 20),
+        child: FocusTimerSheet(),
+      );
+    },
+  );
+  controller.closed.then((_) {
+    timerSheetVisible.value = false;
+  });
+}
+
 class Fab extends StatefulWidget {
   final VoidCallback onSave;
   final bool isOnFoldersPage;
@@ -203,19 +221,7 @@ class _FabState extends State<Fab> {
                         widget.onCreateFolder!();
                       }
                     } else {
-                      timerSheetVisible.value = true;
-                      final controller = showBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: _FocusTimerSheet(),
-                          );
-                        },
-                      );
-                      controller.closed.then((_) {
-                        timerSheetVisible.value = false;
-                      });
+                      showFocusTimerBottomSheet(context);
                     }
                   },
                   shape: RoundedRectangleBorder(
@@ -452,14 +458,14 @@ class _FabState extends State<Fab> {
   }
 }
 
-class _FocusTimerSheet extends StatefulWidget {
-  const _FocusTimerSheet({Key? key}) : super(key: key);
+class FocusTimerSheet extends StatefulWidget {
+  const FocusTimerSheet({Key? key}) : super(key: key);
 
   @override
-  State<_FocusTimerSheet> createState() => _FocusTimerSheetState();
+  State<FocusTimerSheet> createState() => _FocusTimerSheetState();
 }
 
-class _FocusTimerSheetState extends State<_FocusTimerSheet>
+class _FocusTimerSheetState extends State<FocusTimerSheet>
     with SingleTickerProviderStateMixin {
   int totalSeconds = 45 * 60;
   bool isTimerRunning = false;

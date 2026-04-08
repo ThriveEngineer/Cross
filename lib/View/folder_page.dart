@@ -1,4 +1,5 @@
 import 'package:cross/Controller/todo_list.dart';
+import 'package:cross/widgets/folder_selection_menu.dart';
 import 'package:cross/view/folder_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -99,73 +100,79 @@ class _FolderPageState extends State<FolderPage> {
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: InkWell(
-                              onTap: () {
-                                if (inSelectionMode) {
-                                  if (!isDefault) {
-                                    _toggleFolderSelection(index);
-                                  }
-                                } else {
-                                  _navigateToFolder(folderName, folderIcon);
-                                }
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onLongPressStart: (details) {
+                                showFolderSelectionMenu(
+                                  context: context,
+                                  folderIndex: index,
+                                  isDefault: isDefault,
+                                  anchor: details.globalPosition,
+                                );
                               },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Ink(
-                                decoration: BoxDecoration(
-                                  color: isSelected && inSelectionMode
-                                      ? Theme.of(
-                                          context,
-                                        ).primaryColor.withValues(alpha: 0.2)
-                                      : const Color.fromARGB(
-                                          255,
-                                          243,
-                                          243,
-                                          243,
+                              child: InkWell(
+                                onTap: () {
+                                  if (inSelectionMode) {
+                                    if (!isDefault) {
+                                      _toggleFolderSelection(index);
+                                    }
+                                  } else {
+                                    _navigateToFolder(folderName, folderIcon);
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                    color: isSelected && inSelectionMode
+                                        ? Theme.of(
+                                            context,
+                                          ).primaryColor.withValues(alpha: 0.2)
+                                        : const Color.fromARGB(255, 255, 255, 255),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      if (inSelectionMode)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 12,
+                                          ),
+                                          child: Icon(
+                                            isSelected
+                                                ? IconsaxPlusBold.tick_circle
+                                                : (isDefault
+                                                      ? Icons.lock_outline
+                                                      : Icons.circle_outlined),
+                                            color: isSelected
+                                                ? Theme.of(context).primaryColor
+                                                : (isDefault
+                                                      ? Colors.grey
+                                                      : Colors.grey.shade400),
+                                            size: 24,
+                                          ),
                                         ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  children: [
-                                    if (inSelectionMode)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 12,
+                                      Icon(folderIcon, size: 24),
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          folderName,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.normal,
+                                          ),
                                         ),
-                                        child: Icon(
-                                          isSelected
-                                              ? IconsaxPlusBold.tick_circle
-                                              : (isDefault
-                                                    ? Icons.lock_outline
-                                                    : Icons.circle_outlined),
-                                          color: isSelected
-                                              ? Theme.of(context).primaryColor
-                                              : (isDefault
-                                                    ? Colors.grey
-                                                    : Colors.grey.shade400),
+                                      ),
+                                      if (!inSelectionMode)
+                                        Icon(
+                                          IconsaxPlusLinear.arrow_right_3,
                                           size: 24,
                                         ),
-                                      ),
-                                    Icon(folderIcon, size: 24),
-                                    SizedBox(width: 16),
-                                    Expanded(
-                                      child: Text(
-                                        folderName,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                    if (!inSelectionMode)
-                                      Icon(
-                                        IconsaxPlusLinear.arrow_right_3,
-                                        size: 24,
-                                      ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

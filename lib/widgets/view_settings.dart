@@ -30,7 +30,7 @@ class _ViewSettingsState extends State<ViewSettings> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       width: MediaQuery.of(context).size.width * 1,
-      decoration: BoxDecoration(color: Color.fromARGB(255, 242, 242, 247)),
+      decoration: BoxDecoration(color: Color.fromARGB(255, 247, 247, 245)),
       child: Column(
         children: [
           ClipPath(

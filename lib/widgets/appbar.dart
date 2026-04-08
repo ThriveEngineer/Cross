@@ -18,101 +18,148 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppbarWidgetState extends State<AppbarWidget> {
-  @override
   final GlobalKey _buttonKey = GlobalKey();
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: selectionMode,
       builder: (context, inSelectionMode, _) {
-        if (inSelectionMode) {
-          return AppBar(
-            leadingWidth: 80,
-            leading: TextButton(
-              onPressed: () {
-                selectionMode.value = false;
-                selectedTasks.value = Set<List<dynamic>>.from({}); // Clear selected tasks
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  // Select all tasks from the main list
-                  final allTasks = Set<List<dynamic>>.from(toDoList.value);
-                  selectedTasks.value = allTasks;
-                },
-                child: Text(
-                  'Select All',
-                  style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+        final appBar = inSelectionMode
+            ? AppBar(
+                key: const ValueKey('selectionAppBar'),
+                backgroundColor: Color.fromARGB(255, 247, 247, 245),
+                leadingWidth: 80,
+                leading: TextButton(
+                  onPressed: () {
+                    selectionMode.value = false;
+                    selectedTasks.value = Set<List<dynamic>>.from(
+                      {},
+                    ); // Clear selected tasks
+                    selectedFolders.value = Set<int>.from({});
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(width: 15),
-            ],
-          );
-        } else {
-          return AppBar(
-            actions: [
-              SyncStatusIndicator(),
-              SizedBox(width: 8),
-              IconButton(
-                key: _buttonKey,
-                onPressed: () {
-                  showCustomMenu(
-                    context,
-                    _buttonKey,
-                    [
-                      MenuItem(
-                        label: "View",
-                        icon: IconsaxPlusLinear.setting_3,
-                        onTap: () {
-                          Navigator.pop(context);
-                          showModalBottomSheet(
-                            enableDrag: true,
-                            showDragHandle: true,
-                            backgroundColor: Color.fromARGB(255, 242, 242, 247),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            context: context,
-                            builder: (context) => ViewSettings(),
-                          );
-                        },
-                      ),
-                      MenuItem(
-                        label: "Select",
-                        icon: IconsaxPlusLinear.mouse_square,
-                        onTap: () {
-                          Navigator.pop(context);
-                          selectionMode.value = true; // Enter selection mode
-                        },
-                      ),
-                      MenuItem(
-                        label: "Settings", 
-                        icon: IconsaxPlusLinear.setting, 
-                        onTap: () {
-                          Navigator.pop(context);
-                          showCupertinoSheet(
-                            enableDrag: true,
-                            context: context,
-                            builder: (context) => Material(
-                                color: Color.fromARGB(255, 242, 242, 247),
-                                child: SettingsPage()
-                            ),
-                          );
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      if (currentTabIndex.value == 2) {
+                        // Select all non-default folders on Folders tab.
+                        final allFolders = <int>{};
+                        for (int i = 0; i < foldersList.value.length; i++) {
+                          final folder = foldersList.value[i];
+                          final isDefault = folder['isDefault'] as bool;
+                          if (!isDefault) {
+                            allFolders.add(i);
+                          }
                         }
+                        selectedFolders.value = allFolders;
+                        selectedTasks.value = Set<List<dynamic>>.from({});
+                      } else {
+                        // Select all tasks from task tabs.
+                        final allTasks = Set<List<dynamic>>.from(
+                          toDoList.value,
+                        );
+                        selectedTasks.value = allTasks;
+                        selectedFolders.value = Set<int>.from({});
+                      }
+                    },
+                    child: Text(
+                      'Select All',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 15),
+                ],
+              )
+            : AppBar(
+                key: const ValueKey('defaultAppBar'),
+                backgroundColor: Color.fromARGB(255, 247, 247, 245),
+                actions: [
+                  SyncStatusIndicator(),
+                  SizedBox(width: 8),
+                  IconButton(
+                    key: _buttonKey,
+                    onPressed: () {
+                      showCustomMenu(context, _buttonKey, [
+                        MenuItem(
+                          label: "View",
+                          icon: IconsaxPlusLinear.setting_3,
+                          onTap: () {
+                            Navigator.pop(context);
+                            showModalBottomSheet(
+                              enableDrag: true,
+                              showDragHandle: true,
+                              backgroundColor: Color.fromARGB(
+                                255,
+                                247,
+                                247,
+                                245,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                              ),
+                              context: context,
+                              builder: (context) => ViewSettings(),
+                            );
+                          },
                         ),
-                    ],
-                  );
-                },
-                icon: Icon(IconsaxPlusLinear.menu),
-              ),
-              SizedBox(width: 15),
-            ],
-          );
-        }
+                        MenuItem(
+                          label: "Select",
+                          icon: IconsaxPlusLinear.mouse_square,
+                          onTap: () {
+                            Navigator.pop(context);
+                            selectionMode.value = true; // Enter selection mode
+                          },
+                        ),
+                        MenuItem(
+                          label: "Settings",
+                          icon: IconsaxPlusLinear.setting,
+                          onTap: () {
+                            Navigator.pop(context);
+                            showCupertinoSheet(
+                              enableDrag: true,
+                              context: context,
+                              builder: (context) => Material(
+                                color: Color.fromARGB(255, 242, 242, 247),
+                                child: SettingsPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ]);
+                    },
+                    icon: Icon(IconsaxPlusLinear.menu),
+                  ),
+                  SizedBox(width: 15),
+                ],
+              );
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            final offsetAnimation = Tween<Offset>(
+              begin: const Offset(0, -0.08),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: offsetAnimation, child: child),
+            );
+          },
+          child: appBar,
+        );
       },
     );
   }
@@ -173,16 +220,39 @@ class SyncStatusIndicator extends StatelessWidget {
             }
 
             return IconButton(
-              icon: syncState == SyncState.syncing
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(color),
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(
+                        begin: 0.88,
+                        end: 1.0,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: syncState == SyncState.syncing
+                    ? SizedBox(
+                        key: ValueKey('syncing-$direction'),
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                        ),
+                      )
+                    : Icon(
+                        icon,
+                        key: ValueKey('$syncState-$direction'),
+                        color: color,
+                        size: 22,
                       ),
-                    )
-                  : Icon(icon, color: color, size: 22),
+              ),
               tooltip: _getTooltipText(syncState, direction),
               onPressed: () => _showSyncDetails(context),
             );
@@ -278,10 +348,7 @@ class SyncStatusIndicator extends StatelessWidget {
   Widget _buildStatusRow(String label, String value) {
     return Row(
       children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(width: 8),
         Text(value),
       ],

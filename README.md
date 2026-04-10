@@ -43,17 +43,21 @@ Solstice Update v2.0.0 (Quarter 4)
 
 
 ## Latest Update!
-v1.1.1
+Android: v1.1.1 IOS: 1.2.0
 
 
 #### 
 
 - https://github.com/ThriveEngineer/Cross/releases
-- Latest commit deployed to Apple App Store: Released on 08.04.2026, as Version v1.1.1
-#### IOS
-- Force sync after Notion connection
+- Latest commit deployed to Apple App Store: Released on 10.04.2026, as Version v1.2.0
+#### IOS v1.2.0
+- Better and more polished design
+- Toggle due date visibility
+- Long-press any task to see its details
+- Quickly remove tasks by swiping
+- See what's new every time the app updates
 
-#### Android (Open Source)
+#### Android (Open Source) v1.1.1
 - Better and more polished design
 - New animations
 - Reintroducing the Upcoming page
